@@ -28,23 +28,48 @@ public class Car extends Actor {
 	public void act() {
 		setRules();
 		if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
-			turnLeft();
+			if (turnSpeed > topTurnSpeed)
+				speed--;
+			this.turn(-turnSpeed);
+			turning = true;
 		}
 		if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("D")) {
-			turnRight();
+			if (turnSpeed > topTurnSpeed)
+				speed--;
+			this.turn(turnSpeed);
+			turning = true;
 		}
 		if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("S")) {
-			reverse();
+			if (turning) {
+				if (counter == counterTime)
+					speed--;
+			} else if (speed > stopped && counter % 3 == brakes)
+				speed--;
+			else if (speed > -topSpeed)
+				speed--;
 		}
 		if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("W")) {
-			accelerate();
+			if (turning) {
+				if (counter == counterTime)
+				speed++;
+			} else if (speed < stopped && counter % 3 == brakes)
+				speed++;
+			else if (speed < topSpeed)
+				speed++;
 		}
 		if (Greenfoot.isKeyDown("space")) {
-			brake();
+			if (speed > stopped && counter % 3 == brakes) {
+				speed--;
+			} else if (speed < stopped && counter % 3 == brakes) {
+				speed++;
+			}
 		}
-		adjustSpeed();
-		move();
+		if (speed > stopped && counter == counterTime)
+			speed--;
+		else if (speed < stopped && counter == counterTime)
+			speed++;
 
+		this.move(speed);
 	}
 	
 	private void setRules(){
@@ -53,58 +78,5 @@ public class Car extends Actor {
 		if (counter == counterTime)
 			counter = 0;
 		counter++;
-	}
-	
-	private void turnLeft(){
-		if (turnSpeed > topTurnSpeed)
-			speed--;
-		this.turn(-turnSpeed);
-		turning = true;
-	}
-	
-	private void turnRight(){
-		if (turnSpeed > topTurnSpeed)
-			speed--;
-		this.turn(turnSpeed);
-		turning = true;
-	}
-	
-	private void accelerate(){
-		if (turning) {
-			if (counter == counterTime)
-			speed++;
-		} else if (speed < stopped && counter % 3 == brakes)
-			speed++;
-		else if (speed < topSpeed)
-			speed++;
-	}
-	
-	private void reverse(){
-		if (turning) {
-			if (counter == counterTime)
-				speed--;
-		} else if (speed > stopped && counter % 3 == brakes)
-			speed--;
-		else if (speed > -topSpeed)
-			speed--;
-	}
-	
-	private void brake(){
-		if (speed > stopped && counter % 3 == brakes) {
-			speed--;
-		} else if (speed < stopped && counter % 3 == brakes) {
-			speed++;
-		}
-	}
-	
-	private void adjustSpeed(){
-		if (speed > stopped && counter == counterTime)
-			speed--;
-		else if (speed < stopped && counter == counterTime)
-			speed++;
-	}
-	
-	private void move(){
-		this.move(speed);
 	}
 }

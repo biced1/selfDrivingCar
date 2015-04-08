@@ -42,9 +42,12 @@ public class Car extends Actor {
 		if (Greenfoot.isKeyDown("space")) {
 			brake();
 		}
-		adjustSpeed();
-		move();
+		if (speed > stopped && counter == counterTime)
+			speed--;
+		else if (speed < stopped && counter == counterTime)
+			speed++;
 
+		this.move(speed);
 	}
 	
 	private void setRules(){
@@ -95,16 +98,5 @@ public class Car extends Actor {
 		} else if (speed < stopped && counter % 3 == brakes) {
 			speed++;
 		}
-	}
-	
-	private void adjustSpeed(){
-		if (speed > stopped && counter == counterTime)
-			speed--;
-		else if (speed < stopped && counter == counterTime)
-			speed++;
-	}
-	
-	private void move(){
-		this.move(speed);
 	}
 }

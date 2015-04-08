@@ -42,8 +42,7 @@ public class Car extends Actor {
 		if (Greenfoot.isKeyDown("space")) {
 			brake();
 		}
-		adjustSpeed();
-		move();
+
 
 	}
 	
