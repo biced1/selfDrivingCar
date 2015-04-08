@@ -1,7 +1,8 @@
 package model;
 
-import control.Car;
 import greenfoot.World;
+import control.Car;
+import control.Curb;
 
 public class TestWorld extends World{
 	
@@ -12,6 +13,7 @@ public class TestWorld extends World{
 	public TestWorld() {
 		super(worldWidth, worldHeight, cellSize);
 		this.addObject(new Car(), 100, 100);
+		this.addObject(new Curb(), 10, 10);
 	}
 
 }
