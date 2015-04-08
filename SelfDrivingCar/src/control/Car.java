@@ -11,7 +11,7 @@ public class Car extends Actor {
 	private final int stopped = 0;
 	private final int brakes = 2;
 	private final int counterTime = 10;
-	private final int topSpeed = 8;
+	private final int topSpeed = 6;
 	private final int topTurnSpeed = 5;
 
 	public Car() {
@@ -26,7 +26,9 @@ public class Car extends Actor {
 	public void act() {
 		setRules();
 		if (this.isTouching(Curb.class)) {
-			System.out.println("Touching");
+			speed = 0;
+			this.setLocation(100, 100);
+			this.setRotation(0);
 		} else {
 			if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
 				turnLeft();
@@ -75,20 +77,20 @@ public class Car extends Actor {
 		if (turning) {
 			if (counter == counterTime)
 				speed++;
-		} else if (speed < stopped && counter % 3 == brakes)
+		} else if (speed < topSpeed && counter % 3 == brakes)
 			speed++;
-		else if (speed < topSpeed)
-			speed++;
+//		else if (speed < topSpeed)
+//			speed++;
 	}
 
 	private void reverse() {
 		if (turning) {
 			if (counter == counterTime)
 				speed--;
-		} else if (speed > stopped && counter % 3 == brakes)
+		} else if (speed > -topSpeed && counter % 3 == brakes)
 			speed--;
-		else if (speed > -topSpeed)
-			speed--;
+//		else if (speed > -topSpeed)
+//			speed--;
 	}
 
 	private void brake() {
