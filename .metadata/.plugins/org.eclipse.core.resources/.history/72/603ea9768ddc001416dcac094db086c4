@@ -1,0 +1,11 @@
+package model;
+
+import greenfoot.World;
+
+public class TestWorld extends World{
+
+	public TestWorld(int worldWidth, int worldHeight, int cellSize) {
+		super(worldWidth, worldHeight, cellSize);
+	}
+
+}

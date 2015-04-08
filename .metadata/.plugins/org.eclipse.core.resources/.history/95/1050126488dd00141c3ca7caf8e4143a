@@ -1,0 +1,41 @@
+package control;
+
+import greenfoot.Actor;
+import greenfoot.Greenfoot;
+
+public class Car extends Actor {
+	private int speed = 0;
+
+	public Car() {
+		super();
+		this.setImage("images/regular/blueCar.png");
+		System.out.println(this.getImage().getHeight());
+		System.out.println(this.getImage().getWidth());
+		this.getImage().scale(this.getImage().getWidth() / 2,
+				this.getImage().getHeight() / 2);
+
+	}
+
+	@Override
+	public void act() {
+		if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
+			this.move(speed);
+			this.turn(-speed);
+		} else if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("S")) {
+			speed--;
+			this.move(speed);
+		} else if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("D")) {
+			this.move(speed);
+			this.turn(speed);
+		} else if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("W")) {
+			speed++;
+			this.move(speed);
+		} else {
+			if (speed > 0)
+				speed--;
+			else
+				speed++;
+			this.move(speed);
+		}
+	}
+}

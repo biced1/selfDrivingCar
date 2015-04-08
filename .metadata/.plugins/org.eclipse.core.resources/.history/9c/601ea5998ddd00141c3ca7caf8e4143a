@@ -1,0 +1,59 @@
+package control;
+
+import greenfoot.Actor;
+import greenfoot.Greenfoot;
+
+public class Car extends Actor {
+	private int speed = 0;
+	private int counter = 0;
+	private int turnSpeed = 0;
+	private final int stopped = 0;
+	private final int brakes = 2;
+	private final int counterTime = 10;
+	private final int topSpeed = 8;
+
+	public Car() {
+		super();
+		this.setImage("images/regular/blueCar.png");
+		System.out.println(this.getImage().getHeight());
+		System.out.println(this.getImage().getWidth());
+		this.getImage().scale(this.getImage().getWidth() / 2,
+				this.getImage().getHeight() / 2);
+
+	}
+
+	@Override
+	public void act() {
+		turnSpeed = speed < 2 ? 8/speed : 16/speed;
+		if (counter == counterTime)
+			counter = 0;
+		counter++;
+		if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
+			this.turn(-turnSpeed);
+		} else if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("S")) {
+			if (speed > stopped && counter % 3 == brakes)
+				speed--;
+			else if (speed > -topSpeed)
+				speed--;
+		} else if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("D")) {
+			this.turn(turnSpeed);
+		} else if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("W")) {
+			if (speed < stopped && counter % 3 == brakes)
+				speed++;
+			else if (speed < topSpeed)
+				speed++;
+		} else if (Greenfoot.isKeyDown("space")) {
+			if (speed > stopped && counter % 3 == brakes) {
+				speed--;
+			} else if (speed < stopped && counter % 3 == brakes) {
+				speed++;
+			}
+		} else {
+			if (speed > stopped && counter == counterTime)
+				speed--;
+			else if (speed < stopped && counter == counterTime)
+				speed++;
+		}
+		this.move(speed);
+	}
+}

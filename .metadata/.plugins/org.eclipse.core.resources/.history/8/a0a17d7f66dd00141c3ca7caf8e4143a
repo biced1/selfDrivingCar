@@ -1,0 +1,10 @@
+package control;
+
+import greenfoot.Actor;
+
+public class Car extends Actor{
+	@Override
+	public void act(){
+		
+	}
+}

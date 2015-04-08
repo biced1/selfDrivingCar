@@ -1,0 +1,33 @@
+package control;
+
+import greenfoot.Actor;
+import greenfoot.Greenfoot;
+
+public class Car extends Actor {
+
+	public Car() {
+		super();
+		this.setImage("images/regular/blueCar.png");
+	}
+
+	@Override
+	public void act() {
+		if (!this.isAtEdge()) {
+			if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
+				this.move(2);
+				System.out.println(this.getRotation());
+				this.turn(-1);
+			} else if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("S")) {
+				this.move(-2);
+				System.out.println(this.getRotation());
+			} else if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("D")) {
+				this.move(2);
+				System.out.println(this.getRotation());
+				this.turn(1);
+			} else if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("W")) {
+				this.move(2);
+				System.out.println(this.getRotation());
+			}
+		}
+	}
+}

@@ -1,0 +1,16 @@
+package control;
+
+import greenfoot.Actor;
+
+public class Car extends Actor{
+	
+	public Car(){
+		super();
+		this.setImage("/images/regular/blueCar.png");
+	}
+	
+	@Override
+	public void act(){
+		
+	}
+}
