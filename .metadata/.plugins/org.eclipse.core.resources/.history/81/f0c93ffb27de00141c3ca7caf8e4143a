@@ -1,0 +1,21 @@
+package control;
+
+import java.awt.Color;
+
+import greenfoot.Actor;
+import greenfoot.GreenfootImage;
+
+public class Road extends Actor{
+	private static final int roadWidth = 150;
+	
+	public Road(int roadLength) {
+		GreenfootImage roadImg = new GreenfootImage(roadLength, getRoadWidth());
+		roadImg.setColor(new Color(0, 0, 0));
+		roadImg.fill();
+		this.setImage(roadImg);
+	}
+
+	public static int getRoadWidth() {
+		return roadWidth;
+	}
+}
