@@ -1,6 +1,5 @@
 package control;
 
-import model.TestWorld;
 import greenfoot.Greenfoot;
 import greenfoot.World;
 

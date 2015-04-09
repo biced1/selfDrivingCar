@@ -1,7 +1,0 @@
-package model;
-
-import greenfoot.World;
-
-public class TestWorld extends World{
-
-}

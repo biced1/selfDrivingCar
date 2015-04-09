@@ -1,5 +1,6 @@
 package control;
 
+import model.Curb;
 import greenfoot.Actor;
 import greenfoot.Greenfoot;
 
@@ -8,46 +9,56 @@ public class Car extends Actor {
 	private int counter = 0;
 	private int turnSpeed = 0;
 	private final int stopped = 0;
-	private final int brakes = 2;
-	private final int counterTime = 10;
-	private final int topSpeed = 3;
-	private final int topTurnSpeed = 5;
+	private final int brakes = 5;
+	private final int counterTime = 15;
+	private final int topSpeed = 4;
+	private final int topTurnSpeed = 4;
 
 	public Car() {
 		super();
-		this.setImage("images/regular/blueCar.png");
-		this.getImage().scale(this.getImage().getWidth() / 2,
-				this.getImage().getHeight() / 2);
+		setRed();
+		setBlue();
 
 	}
 
 	@Override
 	public void act() {
+		boolean keyDown = false;
 		setRules();
 		if (this.isTouching(Curb.class)) {
-			speed = 0;
-			this.setLocation(100, 100);
-			this.setRotation(0);
+			setRed();
 		} else {
-			if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
-				turnLeft();
-			}
-			if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("D")) {
-				turnRight();
-			}
-			if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("S")) {
-				reverse();
-			}
-			if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("W")) {
-				accelerate();
-			}
-			if (Greenfoot.isKeyDown("space")) {
-				brake();
-			}
-			adjustSpeed();
-			move();
+			setBlue();
 		}
 
+		if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
+			turnLeft();
+		}
+		if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("D")) {
+			turnRight();
+		}
+		if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("S")) {
+			reverse();
+			keyDown = true;
+		}
+		if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("W")) {
+			accelerate();
+			keyDown = true;
+		}
+		if (Greenfoot.isKeyDown("space")) {
+			brake();
+		}
+		if (!keyDown)
+			adjustSpeed();
+		move();
+	}
+
+	private void setBlue() {
+		this.setImage("images/regular/blueCar.png");
+	}
+
+	private void setRed() {
+		this.setImage("images/regular/redCar.png");
 	}
 
 	private void setRules() {
@@ -70,31 +81,19 @@ public class Car extends Actor {
 	}
 
 	private void accelerate() {
-//		if (turning) {
-//			if (counter == counterTime)
-//				speed++;
-//		} else
-			if (speed < topSpeed && counter % 3 == brakes)
+		if (speed < topSpeed && counter % brakes + 1 == brakes)
 			speed++;
-//		else if (speed < topSpeed)
-//			speed++;
 	}
 
 	private void reverse() {
-//		if (turning) {
-//			if (counter == counterTime)
-//				speed--;
-//		} else
-			if (speed > -topSpeed && counter % 3 == brakes)
+		if (speed > -topSpeed && counter % brakes + 1 == brakes)
 			speed--;
-//		else if (speed > -topSpeed)
-//			speed--;
 	}
 
 	private void brake() {
-		if (speed > stopped && counter % 3 == brakes) {
+		if (speed > stopped && counter % brakes + 1 == brakes) {
 			speed--;
-		} else if (speed < stopped && counter % 3 == brakes) {
+		} else if (speed < stopped && counter % brakes + 1 == brakes) {
 			speed++;
 		}
 	}
