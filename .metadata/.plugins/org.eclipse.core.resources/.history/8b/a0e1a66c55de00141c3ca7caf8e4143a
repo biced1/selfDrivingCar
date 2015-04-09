@@ -1,0 +1,13 @@
+package control;
+
+import greenfoot.Actor;
+import greenfoot.GreenfootImage;
+
+public class Road extends Actor{
+	
+	public Road() {
+		GreenfootImage roadImg = new GreenfootImage("images/roads/roadEW.tga");
+		roadImg.rotate(90);
+		this.setImage(roadImg);
+	}
+}

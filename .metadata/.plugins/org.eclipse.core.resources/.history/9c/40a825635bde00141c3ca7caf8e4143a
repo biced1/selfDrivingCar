@@ -1,0 +1,14 @@
+package control;
+
+import model.TestWorld;
+import greenfoot.Greenfoot;
+import greenfoot.World;
+
+public class WorldControl {
+	public void setup() {
+		int[] map = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		World world = new TestWorld(map, 4, 4);
+		Greenfoot.setSpeed(10);
+		Greenfoot.setWorld(world);
+	}
+}

@@ -1,0 +1,38 @@
+package model;
+
+import greenfoot.World;
+import control.Car;
+import control.Curb;
+import control.Road;
+
+public class TestWorld extends World {
+
+	private static int worldWidth = 1800;
+	private static int worldHeight = 800;
+	private static int cellSize = 1;
+	private static int roadSize = 256;
+
+	public TestWorld() {
+		super(worldWidth, worldHeight, cellSize);
+		//addRoads();
+		addCar(100, 100);
+
+	}
+
+	public void addRoads(int[] map, int width, int height) {
+		int pos = 0;
+		for(int x = 0; x < width; x++){
+			for(int y = 0; y < height; y++){
+				switch(map[pos]){
+					
+				}
+				pos++;
+			}
+		}
+	}
+
+	public void addCar(int startXPos, int startYPos) {
+		Car car = new Car();
+		this.addObject(car, startXPos, startYPos);
+	}
+}

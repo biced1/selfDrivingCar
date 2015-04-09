@@ -1,0 +1,12 @@
+0 - nothing
+1 - vertical road
+2 - horizontal road
+3 - four way intersection
+4 - up-right elbow
+5 - up-left elbow
+6 - down-right elbow
+7 - down-left elbow
+8 - right-closed three way intersection
+9 - left-closed three way intersection
+a - top-closed three way intersection
+b - bottom closed three way intersection

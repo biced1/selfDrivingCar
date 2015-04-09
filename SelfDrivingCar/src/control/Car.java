@@ -7,11 +7,10 @@ public class Car extends Actor {
 	private int speed = 0;
 	private int counter = 0;
 	private int turnSpeed = 0;
-	private boolean turning = false;
 	private final int stopped = 0;
 	private final int brakes = 2;
 	private final int counterTime = 10;
-	private final int topSpeed = 6;
+	private final int topSpeed = 3;
 	private final int topTurnSpeed = 5;
 
 	public Car() {
@@ -53,7 +52,6 @@ public class Car extends Actor {
 
 	private void setRules() {
 		turnSpeed = speed <= 2 && speed >= -2 ? speed : 8 / speed;
-		turning = false;
 		if (counter == counterTime)
 			counter = 0;
 		counter++;
@@ -63,31 +61,31 @@ public class Car extends Actor {
 		if (turnSpeed > topTurnSpeed)
 			speed--;
 		this.turn(-turnSpeed);
-		turning = true;
 	}
 
 	private void turnRight() {
 		if (turnSpeed > topTurnSpeed)
 			speed--;
 		this.turn(turnSpeed);
-		turning = true;
 	}
 
 	private void accelerate() {
-		if (turning) {
-			if (counter == counterTime)
-				speed++;
-		} else if (speed < topSpeed && counter % 3 == brakes)
+//		if (turning) {
+//			if (counter == counterTime)
+//				speed++;
+//		} else
+			if (speed < topSpeed && counter % 3 == brakes)
 			speed++;
 //		else if (speed < topSpeed)
 //			speed++;
 	}
 
 	private void reverse() {
-		if (turning) {
-			if (counter == counterTime)
-				speed--;
-		} else if (speed > -topSpeed && counter % 3 == brakes)
+//		if (turning) {
+//			if (counter == counterTime)
+//				speed--;
+//		} else
+			if (speed > -topSpeed && counter % 3 == brakes)
 			speed--;
 //		else if (speed > -topSpeed)
 //			speed--;
