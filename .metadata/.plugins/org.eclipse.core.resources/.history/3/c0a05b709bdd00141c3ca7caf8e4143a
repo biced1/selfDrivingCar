@@ -1,9 +1,0 @@
-package control;
-
-import greenfoot.Actor;
-import greenfoot.GreenfootImage;
-
-public class Curb extends Actor{
-	GreenfootImage curbImg = new GreenfootImage(1500, 5);
-	curbImg.clear();
-}

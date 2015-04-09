@@ -1,7 +1,0 @@
-package control;
-
-import greenfoot.Actor;
-
-public class Curb extends Actor{
-	
-}
