@@ -168,6 +168,22 @@ public class TestWorld extends World {
 
 	}
 
+	private void addTopDivider(int width, int height) {
+		this.addObject(new Divider(), x, y)
+	}
+
+	private void addBottomDivider(int width, int height) {
+
+	}
+
+	private void addLeftDivider(int width, int height) {
+
+	}
+
+	private void addRightDivider(int width, int height) {
+
+	}
+
 	private void addTopCurb(int width, int height) {
 		this.addObject(new Curb(roadSize, curbWidth), width * roadSize
 				+ roadSize / 2, height * roadSize + curbWidth / 2);
