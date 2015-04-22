@@ -46,4 +46,9 @@ public class Divider extends Actor {
 	public int getDividerLength() {
 		return dividerLength;
 	}
+	
+	@Override
+	public String toString(){
+		return "Divider at x: " + this.getX() + " y: " + this.getY();
+	}
 }

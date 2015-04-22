@@ -45,4 +45,9 @@ public class Curb extends Actor {
 	public int getCurbLength() {
 		return curbLength;
 	}
+	
+	@Override
+	public String toString(){
+		return "Curb at x: " + this.getX() + " y: " + this.getY();
+	}
 }
