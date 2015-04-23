@@ -33,6 +33,7 @@ public abstract class Tire extends SmoothMover {
 		if (Greenfoot.isKeyDown("space")) {
 			brake();
 		}
+		adjustSpeed();
 		move();
 	}
 
@@ -45,5 +46,7 @@ public abstract class Tire extends SmoothMover {
 	protected abstract void turnRight();
 
 	protected abstract void turnLeft();
+	
+	protected abstract void adjustSpeed();
 
 }

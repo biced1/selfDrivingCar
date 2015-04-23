@@ -27,7 +27,6 @@ public class FrontTire extends Tire {
 	@Override
 	protected void brake() {
 		this.accelerate(.96);
-
 	}
 
 	@Override
@@ -36,9 +35,8 @@ public class FrontTire extends Tire {
 
 		if (this.getSpeed() == 0) {
 			this.addForce(new Vector(this.getRotation(), startForce));
-		} else if ((actualRotation == this.getRotation()
-				|| actualRotation + 1 == this.getRotation() || actualRotation - 1 == this
-				.getRotation()) && this.getSpeed() < maxSpeed) {
+		} else if ((actualRotation == this.getRotation() || actualRotation + 1 == this.getRotation() || actualRotation - 1 == this.getRotation())
+				&& this.getSpeed() < maxSpeed) {
 			this.accelerate(1 + accelerationDelta);
 		} else {
 			this.accelerate(1 - accelerationDelta);
@@ -53,8 +51,7 @@ public class FrontTire extends Tire {
 
 		if (this.getSpeed() == 0) {
 			this.addForce(new Vector(reverseRotation, startForce));
-		} else if ((actualRotation == reverseRotation
-				|| actualRotation + 1 == reverseRotation || actualRotation - 1 == reverseRotation)
+		} else if ((actualRotation == reverseRotation || actualRotation + 1 == reverseRotation || actualRotation - 1 == reverseRotation)
 				&& this.getSpeed() < maxSpeed) {
 			this.accelerate(1 + accelerationDelta);
 		} else {
@@ -65,135 +62,116 @@ public class FrontTire extends Tire {
 
 	@Override
 	protected void turnRight() {
-		int reverseRotation = getReverse(this.getRotation());
-
 		int actualRotation = getActualRotation();
 
 		if (inRange(actualRotation)) {
-			if (actualRotation == reverseRotation) {
-				if (this.getRotation() != leftTurnMax) {
-					this.getMovement().setDirection(
-							this.getMovement().getDirection() - 1);
-					this.setRotation(this.getRotation() - 1);
-				}
-			} else {
-				if (this.getRotation() != rightTurnMax) {
-					this.getMovement().setDirection(
-							this.getMovement().getDirection() + 1);
-					this.setRotation(this.getRotation() + 1);
-				}
+			// if (reversing()) {
+			// if (this.getRotation() != leftTurnMax) {
+			// this.getMovement().setDirection(this.getMovement().getDirection()
+			// - 1);
+			// this.setRotation(this.getRotation() - 1);
+			// }
+			// } else {
+			if (this.getRotation() != rightTurnMax) {
+				this.getMovement().setDirection(this.getMovement().getDirection() + 1);
+				this.setRotation(this.getRotation() + 1);
 			}
+			// }
 		}
 	}
 
 	@Override
 	protected void turnLeft() {
-		int reverseRotation = getReverse(this.getRotation());
-
 		int actualRotation = getActualRotation();
 
 		if (inRange(actualRotation)) {
-			if (actualRotation == reverseRotation) {
-				if (this.getRotation() != rightTurnMax) {
-					this.getMovement().setDirection(
-							this.getMovement().getDirection() + 1);
-					this.setRotation(this.getRotation() + 1);
-				}
-			} else {
-				if (this.getRotation() != leftTurnMax) {
-					this.getMovement().setDirection(
-							this.getMovement().getDirection() - 1);
-					this.setRotation(this.getRotation() - 1);
-				}
+			// if (reversing()) {
+			// if (this.getRotation() != rightTurnMax) {
+			// this.getMovement().setDirection(this.getMovement().getDirection()
+			// + 1);
+			// this.setRotation(this.getRotation() + 1);
+			// }
+			// } else {
+			if (this.getRotation() != leftTurnMax) {
+				this.getMovement().setDirection(this.getMovement().getDirection() - 1);
+				this.setRotation(this.getRotation() - 1);
 			}
+			// }
 		}
 
 	}
 
 	private void adjustAngle() {
+		int threshold = 20;
 		int actualRotation = this.getMovement().getDirection() % circle;
 		if (actualRotation < 0) {
 			actualRotation += circle;
 		}
 
 		if (!inRange(this.getRotation())) {
-			if ((circle - 5 < leftTurnMax && leftTurnMax < circle)
-					|| (0 <= leftTurnMax && leftTurnMax < 5)) {
-				if (rightTurnMax < this.getRotation()
-						&& this.getRotation() < rightTurnMax + 5) {
+			if ((circle - threshold < leftTurnMax && leftTurnMax < circle) || (0 <= leftTurnMax && leftTurnMax < threshold)) {
+				if (rightTurnMax < this.getRotation() && this.getRotation() < rightTurnMax + threshold) {
 					this.setRotation(rightTurnMax);
 					if (reversing()) {
-						this.getMovement().setDirection(
-								getReverse(this.getRotation()));
+						this.getMovement().setDirection(getReverse(this.getRotation()));
 					} else {
 						this.getMovement().setDirection(this.getRotation());
 					}
-				} else {
+				} else if ((circle - threshold < this.getRotation() && this.getRotation() < circle)
+						|| (0 <= this.getRotation() && this.getRotation() < threshold)) {
 					this.setRotation(leftTurnMax);
 					if (reversing()) {
-						this.getMovement().setDirection(
-								getReverse(this.getRotation()));
+						this.getMovement().setDirection(getReverse(this.getRotation()));
 					} else {
 						this.getMovement().setDirection(this.getRotation());
 					}
 				}
 			} else {
-				if (leftTurnMax - 5 < this.getRotation()
-						&& this.getRotation() < leftTurnMax) {
+				if (leftTurnMax - threshold < this.getRotation() && this.getRotation() < leftTurnMax) {
 					this.setRotation(leftTurnMax);
 					if (reversing()) {
-						this.getMovement().setDirection(
-								getReverse(this.getRotation()));
+						this.getMovement().setDirection(getReverse(this.getRotation()));
 					} else {
 						this.getMovement().setDirection(this.getRotation());
 					}
-				} else if (rightTurnMax < this.getRotation()
-						&& this.getRotation() < rightTurnMax + 5) {
+				} else if (rightTurnMax < this.getRotation() && this.getRotation() < rightTurnMax + threshold) {
 					this.setRotation(rightTurnMax);
 					if (reversing()) {
-						this.getMovement().setDirection(
-								getReverse(this.getRotation()));
+						this.getMovement().setDirection(getReverse(this.getRotation()));
 					} else {
 						this.getMovement().setDirection(this.getRotation());
 					}
 				}
 			}
-			if ((circle - 5 < rightTurnMax && rightTurnMax < circle)
-					|| (0 <= rightTurnMax && rightTurnMax < 5)) {
-				if (leftTurnMax - 5 < this.getRotation()
-						&& this.getRotation() < leftTurnMax) {
+			if ((circle - threshold < rightTurnMax && rightTurnMax < circle) || (0 <= rightTurnMax && rightTurnMax < threshold)) {
+				if (leftTurnMax - threshold < this.getRotation() && this.getRotation() < leftTurnMax) {
 					this.setRotation(leftTurnMax);
 					if (reversing()) {
-						this.getMovement().setDirection(
-								getReverse(this.getRotation()));
+						this.getMovement().setDirection(getReverse(this.getRotation()));
 					} else {
 						this.getMovement().setDirection(this.getRotation());
 					}
-				} else {
+				} else if ((circle - threshold < this.getRotation() && this.getRotation() < circle)
+						|| (0 <= this.getRotation() && this.getRotation() < threshold)) {
 					this.setRotation(rightTurnMax);
 					if (reversing()) {
-						this.getMovement().setDirection(
-								getReverse(this.getRotation()));
+						this.getMovement().setDirection(getReverse(this.getRotation()));
 					} else {
 						this.getMovement().setDirection(this.getRotation());
 					}
 				}
 			} else {
-				if (leftTurnMax - 5 < this.getRotation()
-						&& this.getRotation() < leftTurnMax) {
+				if (leftTurnMax - threshold < this.getRotation() && this.getRotation() < leftTurnMax) {
 					this.setRotation(leftTurnMax);
 					if (reversing()) {
-						this.getMovement().setDirection(
-								getReverse(this.getRotation()));
+						this.getMovement().setDirection(getReverse(this.getRotation()));
 					} else {
 						this.getMovement().setDirection(this.getRotation());
 					}
-				} else if (rightTurnMax < this.getRotation()
-						&& this.getRotation() < rightTurnMax + 5) {
+				} else if (rightTurnMax < this.getRotation() && this.getRotation() < rightTurnMax + threshold) {
 					this.setRotation(rightTurnMax);
 					if (reversing()) {
-						this.getMovement().setDirection(
-								getReverse(this.getRotation()));
+						this.getMovement().setDirection(getReverse(this.getRotation()));
 					} else {
 						this.getMovement().setDirection(this.getRotation());
 					}
@@ -204,19 +182,17 @@ public class FrontTire extends Tire {
 	}
 
 	public boolean reversing() {
-		int reverseRotation = this.getRotation() > 179 ? this.getRotation() - 180
-				: this.getRotation() + 180;
+		int threshold = 20;
+		int reverseRotation = this.getRotation() > 179 ? this.getRotation() - 180 : this.getRotation() + 180;
 
 		int actualRotation = this.getMovement().getDirection() % circle;
 		if (actualRotation < 0) {
 			actualRotation += circle;
 		}
 		System.out.println(reverseRotation + " " + actualRotation);
-		return (actualRotation - 5 < reverseRotation && reverseRotation < actualRotation + 5)
-				|| (actualRotation - 5 + circle < reverseRotation && reverseRotation < actualRotation
-						+ circle + 5)
-				|| (actualRotation - 5 - circle < reverseRotation && reverseRotation < actualRotation
-						+ 5 - circle);
+		return (actualRotation - threshold < reverseRotation && reverseRotation < actualRotation + threshold)
+				|| (actualRotation - threshold + circle < reverseRotation && reverseRotation < actualRotation + circle + threshold)
+				|| (actualRotation - threshold - circle < reverseRotation && reverseRotation < actualRotation + threshold - circle);
 	}
 
 	private void updateBackTireDirection() {
@@ -241,16 +217,12 @@ public class FrontTire extends Tire {
 
 	private boolean inRange(int rotation) {
 		boolean inRange = false;
-		if ((circle - turnRadius <= backTireRotation && backTireRotation < circle)
-				|| (0 <= backTireRotation && backTireRotation <= turnRadius)) {
-			if (leftTurnMax <= this.getRotation()
-					&& this.getRotation() < circle || 0 <= this.getRotation()
-					&& this.getRotation() <= rightTurnMax) {
+		if ((circle - turnRadius <= backTireRotation && backTireRotation < circle) || (0 <= backTireRotation && backTireRotation <= turnRadius)) {
+			if (leftTurnMax <= this.getRotation() && this.getRotation() < circle || 0 <= this.getRotation() && this.getRotation() <= rightTurnMax) {
 				inRange = true;
 			}
 		} else {
-			if (leftTurnMax <= this.getRotation()
-					&& this.getRotation() <= rightTurnMax) {
+			if (leftTurnMax <= this.getRotation() && this.getRotation() <= rightTurnMax) {
 				inRange = true;
 			}
 		}
@@ -263,6 +235,12 @@ public class FrontTire extends Tire {
 			actualRotation += circle;
 		}
 		return actualRotation;
+	}
+
+	@Override
+	protected void adjustSpeed() {
+		this.accelerate(.99);
+		
 	}
 
 }
