@@ -189,7 +189,6 @@ public class FrontTire extends Tire {
 		if (actualRotation < 0) {
 			actualRotation += circle;
 		}
-		System.out.println(reverseRotation + " " + actualRotation);
 		return (actualRotation - threshold < reverseRotation && reverseRotation < actualRotation + threshold)
 				|| (actualRotation - threshold + circle < reverseRotation && reverseRotation < actualRotation + circle + threshold)
 				|| (actualRotation - threshold - circle < reverseRotation && reverseRotation < actualRotation + threshold - circle);
