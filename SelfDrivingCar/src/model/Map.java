@@ -31,7 +31,8 @@ public class Map extends Actor {
 				distanceFromTop -= panSpeed;
 				this.setLocation(this.getX(), this.getY() + panSpeed);
 				for (Car car : cars) {
-					car.setLocation(car.getX(), car.getY() + panSpeed);
+					car.getFront().setLocation(car.getFront().getX(), car.getFront().getY() + panSpeed);
+					car.getRear().setLocation(car.getRear().getX(), car.getRear().getY() + panSpeed);
 				}
 			}
 		}
@@ -41,7 +42,8 @@ public class Map extends Actor {
 				distanceFromTop += panSpeed;
 				this.setLocation(this.getX(), this.getY() - panSpeed);
 				for (Car car : cars) {
-					car.setLocation(car.getX(), car.getY() - panSpeed);
+					car.getFront().setLocation(car.getFront().getX(), car.getFront().getY() - panSpeed);
+					car.getRear().setLocation(car.getRear().getX(), car.getRear().getY() - panSpeed);
 				}
 			}
 		}
@@ -50,7 +52,8 @@ public class Map extends Actor {
 				distanceFromLeft -= panSpeed;
 				this.setLocation(this.getX() + panSpeed, this.getY());
 				for (Car car : cars) {
-					car.setLocation(car.getX() + panSpeed, car.getY());
+					car.getFront().setLocation(car.getFront().getX() + panSpeed, car.getFront().getY());
+					car.getRear().setLocation(car.getRear().getX() + panSpeed, car.getRear().getY());
 				}
 			}
 		}
@@ -60,7 +63,8 @@ public class Map extends Actor {
 				distanceFromLeft += panSpeed;
 				this.setLocation(this.getX() - panSpeed, this.getY());
 				for (Car car : cars) {
-					car.setLocation(car.getX() - panSpeed, car.getY());
+					car.getFront().setLocation(car.getFront().getX() - panSpeed, car.getFront().getY());
+					car.getRear().setLocation(car.getRear().getX() - panSpeed, car.getRear().getY());
 				}
 			}
 		}

@@ -63,40 +63,22 @@ public class FrontTire extends Tire {
 	@Override
 	protected void turnRight() {
 		int actualRotation = getActualRotation();
+		int turnSpeed = 1;
 
 		if (inRange(actualRotation)) {
-			// if (reversing()) {
-			// if (this.getRotation() != leftTurnMax) {
-			// this.getMovement().setDirection(this.getMovement().getDirection()
-			// - 1);
-			// this.setRotation(this.getRotation() - 1);
-			// }
-			// } else {
-			if (this.getRotation() != rightTurnMax) {
-				this.getMovement().setDirection(this.getMovement().getDirection() + 1);
-				this.setRotation(this.getRotation() + 1);
-			}
-			// }
+				this.getMovement().setDirection(this.getMovement().getDirection() + turnSpeed);
+				this.setRotation(this.getRotation() + turnSpeed);
 		}
 	}
 
 	@Override
 	protected void turnLeft() {
 		int actualRotation = getActualRotation();
+		int turnSpeed = 1;
 
 		if (inRange(actualRotation)) {
-			// if (reversing()) {
-			// if (this.getRotation() != rightTurnMax) {
-			// this.getMovement().setDirection(this.getMovement().getDirection()
-			// + 1);
-			// this.setRotation(this.getRotation() + 1);
-			// }
-			// } else {
-			if (this.getRotation() != leftTurnMax) {
-				this.getMovement().setDirection(this.getMovement().getDirection() - 1);
-				this.setRotation(this.getRotation() - 1);
-			}
-			// }
+				this.getMovement().setDirection(this.getMovement().getDirection() - turnSpeed);
+				this.setRotation(this.getRotation() - turnSpeed);
 		}
 
 	}
