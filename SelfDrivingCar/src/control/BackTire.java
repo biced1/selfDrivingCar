@@ -1,60 +1,43 @@
 package control;
 
+import greenfootAdditions.SmoothMover;
 import greenfootAdditions.Vector;
 
 import java.util.List;
 
-public class BackTire extends Tire {
+public class BackTire extends SmoothMover {
+	private static int carLength = 70;
+	private FrontTire frontTire;
 
 	@Override
 	public void act() {
-		int carLength = 70;
-		super.act();
-		List<FrontTire> frontTire = this.getObjectsInRange(110, FrontTire.class);
-		this.turnTowards(frontTire.get(0).getX(), frontTire.get(0).getY());
-		this.getMovement().setDirection(this.getRotation());
-		double distanceBetween = Math.sqrt(Math.pow(frontTire.get(0).getExactY() - this.getExactY(), 2)
-				+ Math.pow(frontTire.get(0).getExactX() - this.getExactX(), 2));
+		setFrontTire();
+		turnTowardsFront();
+		setMovementVector();
+		move();
+	}
+
+	private void setMovementVector() {
+		double distanceBetween = getDistanceBetweenTires();
 		if (distanceBetween > carLength) {
 			this.getMovement().setNeutral();
-			this.addForce(new Vector(this.getRotation(), frontTire.get(0).getSpeed() + distanceBetween - carLength));
-			// this.move((int)frontTire.get(0).getSpeed() + 1);
+			this.addForce(new Vector(this.getRotation(), frontTire.getSpeed() + distanceBetween - carLength));
 		} else if (distanceBetween < carLength) {
 			this.getMovement().setNeutral();
-			this.addForce(new Vector(this.getRotation(), frontTire.get(0).getSpeed() - (carLength - distanceBetween)));
+			this.addForce(new Vector(this.getRotation(), frontTire.getSpeed() - (carLength - distanceBetween)));
 		}
 	}
 
-	@Override
-	protected void brake() {
-		// TODO Auto-generated method stub
-
+	private void turnTowardsFront() {
+		this.turnTowards(frontTire.getX(), frontTire.getY());
 	}
 
-	@Override
-	protected void accelerate() {
-
+	private void setFrontTire() {
+		List<FrontTire> frontTires = this.getObjectsInRange(110, FrontTire.class);
+		this.frontTire = frontTires.get(0);
 	}
 
-	@Override
-	protected void reverse() {
-
+	private double getDistanceBetweenTires() {
+		return Math.sqrt(Math.pow(frontTire.getExactY() - this.getExactY(), 2) + Math.pow(frontTire.getExactX() - this.getExactX(), 2));
 	}
-
-	@Override
-	protected void turnRight() {
-
-	}
-
-	@Override
-	protected void turnLeft() {
-
-	}
-
-	@Override
-	protected void adjustSpeed() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

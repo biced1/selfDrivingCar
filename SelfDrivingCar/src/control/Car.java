@@ -6,18 +6,13 @@ import model.Map;
 
 public class Car extends SmoothMover {
 	private final double maxSpeed = 5;
-	private Map gps;
-	private Tire front = new FrontTire();
-	private Tire rear = new BackTire();
+	private SmoothMover front = new FrontTire();
+	private SmoothMover rear = new BackTire();
 
 	public Car() {
 		super();
 		setRed();
 		setBlue();
-	}
-
-	public void setMap(Map map) {
-		this.gps = map;
 	}
 
 	private void setPosition() {
@@ -155,11 +150,11 @@ public class Car extends SmoothMover {
 		// 255);
 	}
 
-	public Tire getFront() {
+	public SmoothMover getFront() {
 		return front;
 	}
 
-	public Tire getRear() {
+	public SmoothMover getRear() {
 		return rear;
 	}
 }
