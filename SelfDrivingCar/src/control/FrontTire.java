@@ -19,8 +19,6 @@ public class FrontTire extends Tire {
 		this.updateBackTireDirection();
 		this.updateTurnRadius();
 		this.adjustAngle();
-		// System.out.println(rightTurnMax + " " + leftTurnMax + " "
-		// + backTireRotation + " " + this.getRotation());
 		super.act();
 	}
 
@@ -66,8 +64,8 @@ public class FrontTire extends Tire {
 		int turnSpeed = 1;
 
 		if (inRange(actualRotation)) {
-				this.getMovement().setDirection(this.getMovement().getDirection() + turnSpeed);
-				this.setRotation(this.getRotation() + turnSpeed);
+			this.getMovement().setDirection(this.getMovement().getDirection() + turnSpeed);
+			this.setRotation(this.getRotation() + turnSpeed);
 		}
 	}
 
@@ -77,8 +75,8 @@ public class FrontTire extends Tire {
 		int turnSpeed = 1;
 
 		if (inRange(actualRotation)) {
-				this.getMovement().setDirection(this.getMovement().getDirection() - turnSpeed);
-				this.setRotation(this.getRotation() - turnSpeed);
+			this.getMovement().setDirection(this.getMovement().getDirection() - turnSpeed);
+			this.setRotation(this.getRotation() - turnSpeed);
 		}
 
 	}
@@ -221,7 +219,7 @@ public class FrontTire extends Tire {
 	@Override
 	protected void adjustSpeed() {
 		this.accelerate(.99);
-		
+
 	}
 
 }

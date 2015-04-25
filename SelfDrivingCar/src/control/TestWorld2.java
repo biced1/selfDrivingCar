@@ -17,7 +17,7 @@ public class TestWorld2 extends World {
 	public TestWorld2() {
 		super(worldWidth, worldHeight, cellSize, false);
 		addMap();
-		addCar(100, 100);
+		addCar(worldWidth/2, worldHeight/2);
 	}
 	private void addMap(){
 		Map map = new Map(cars);
