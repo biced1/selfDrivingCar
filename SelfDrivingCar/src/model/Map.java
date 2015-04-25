@@ -12,61 +12,52 @@ import control.TestWorld2;
 public class Map extends Actor {
 	private static int scale = 4;
 	private static int panSpeed = 10;
-	private List<Car> cars = null;
+	private List<Car> cars;
 	private long distanceFromTop = 0;
 	private long distanceFromLeft = 0;
 
 	public Map(List<Car> cars) {
 		this.cars = cars;
-		GreenfootImage map = new GreenfootImage(
-				"images/maps/coord=40.564416,-112.304306_zoom=-2.png");
-		map.scale(map.getWidth() * scale, map.getHeight() * scale);
-		this.setImage(map);
+		setupImage();
 	}
 
 	@Override
 	public void act() {
 		if (Greenfoot.isKeyDown("up")) {
 			if (distanceFromTop > 0) {
-				distanceFromTop -= panSpeed;
-				this.setLocation(this.getX(), this.getY() + panSpeed);
-				for (Car car : cars) {
-					car.getFront().setLocation(car.getFront().getX(), car.getFront().getY() + panSpeed);
-					car.getRear().setLocation(car.getRear().getX(), car.getRear().getY() + panSpeed);
-				}
+				pan(0, panSpeed);
 			}
 		}
 		if (Greenfoot.isKeyDown("down")) {
-			if (distanceFromTop < this.getImage().getHeight()
-					- TestWorld2.worldHeight - panSpeed) {
-				distanceFromTop += panSpeed;
-				this.setLocation(this.getX(), this.getY() - panSpeed);
-				for (Car car : cars) {
-					car.getFront().setLocation(car.getFront().getX(), car.getFront().getY() - panSpeed);
-					car.getRear().setLocation(car.getRear().getX(), car.getRear().getY() - panSpeed);
-				}
+			if (distanceFromTop < this.getImage().getHeight() - TestWorld2.worldHeight - panSpeed) {
+				pan(0, -panSpeed);
 			}
 		}
 		if (Greenfoot.isKeyDown("left")) {
 			if (distanceFromLeft > 0) {
-				distanceFromLeft -= panSpeed;
-				this.setLocation(this.getX() + panSpeed, this.getY());
-				for (Car car : cars) {
-					car.getFront().setLocation(car.getFront().getX() + panSpeed, car.getFront().getY());
-					car.getRear().setLocation(car.getRear().getX() + panSpeed, car.getRear().getY());
-				}
+				pan(panSpeed, 0);
 			}
 		}
 		if (Greenfoot.isKeyDown("right")) {
-			if (distanceFromLeft < this.getImage().getWidth()
-					- TestWorld2.worldWidth - panSpeed) {
-				distanceFromLeft += panSpeed;
-				this.setLocation(this.getX() - panSpeed, this.getY());
-				for (Car car : cars) {
-					car.getFront().setLocation(car.getFront().getX() - panSpeed, car.getFront().getY());
-					car.getRear().setLocation(car.getRear().getX() - panSpeed, car.getRear().getY());
-				}
+			if (distanceFromLeft < this.getImage().getWidth() - TestWorld2.worldWidth - panSpeed) {
+				pan(-panSpeed, 0);
 			}
+		}
+	}
+	
+	private void setupImage(){
+		GreenfootImage map = new GreenfootImage("images/maps/coord=40.564416,-112.304306_zoom=-2.png");
+		map.scale(map.getWidth() * scale, map.getHeight() * scale);
+		this.setImage(map);
+	}
+
+	private void pan(int x, int y) {
+		distanceFromLeft -= x;
+		distanceFromTop -= y;
+		this.setLocation(this.getX() + x, this.getY() + y);
+		for (Car car : cars) {
+			car.getFront().setLocation(car.getFront().getExactX() + x, car.getFront().getExactY() + y);
+			car.getRear().setLocation(car.getRear().getExactX() + x, car.getRear().getExactY() + y);
 		}
 	}
 
