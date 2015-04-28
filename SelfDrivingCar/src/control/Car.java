@@ -31,9 +31,6 @@ public class Car extends SmoothMover {
 				r.step();
 			}
 		}
-		
-		System.out.println();
-		System.out.println();
 		setPosition();
 		if (this.isTouching(Map.class)) {
 			this.setBlue();
