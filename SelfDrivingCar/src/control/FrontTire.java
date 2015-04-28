@@ -10,6 +10,7 @@ public class FrontTire extends Tire {
 	private int backTireRotation = 0;
 	private int rightTurnMax = turnRadius;
 	private int leftTurnMax = -turnRadius;
+	private int turn= 0;
 	private double accelerationDelta = .05;
 	private double startForce = .5;
 	private static int circle = 360;
@@ -64,6 +65,7 @@ public class FrontTire extends Tire {
 		int turnSpeed = 1;
 
 		if (inRange(actualRotation)) {
+			turn++;
 			this.getMovement().setDirection(this.getMovement().getDirection() + turnSpeed);
 			this.setRotation(this.getRotation() + turnSpeed);
 		}
@@ -75,6 +77,7 @@ public class FrontTire extends Tire {
 		int turnSpeed = 1;
 
 		if (inRange(actualRotation)) {
+			turn--;
 			this.getMovement().setDirection(this.getMovement().getDirection() - turnSpeed);
 			this.setRotation(this.getRotation() - turnSpeed);
 		}

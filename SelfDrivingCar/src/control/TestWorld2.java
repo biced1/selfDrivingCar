@@ -1,8 +1,8 @@
 package control;
 
 import greenfoot.World;
-import greenfootAdditions.Vector;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class TestWorld2 extends World {
 	public static int worldHeight = 900;
 	private static int cellSize = 1;
 	private Map map;
-	private Car currentCenter = new Car();
+	private Car currentCenter;
 	private List<Car> cars = new ArrayList<Car>();
 
 	public TestWorld2() {
@@ -31,11 +31,25 @@ public class TestWorld2 extends World {
 	}
 
 	private void addCar(int x, int y) {
-		Car car = currentCenter;
-		this.addObject(car.getFront(), x + 35, y);
-		this.addObject(car.getRear(), x - 35, y);
+		List<Ray> rays = new ArrayList<Ray>();
+		for(int i = 0; i < 360; i += 1){
+			System.out.println(i);
+			Ray ray = new Ray(x, y, i, i);
+			this.addObject(ray, x, y);
+			rays.add(ray);
+		}
+		System.out.println(rays.size());
+		Car car = new Car(rays);
+		currentCenter = car;
 		this.addObject(car, x, y);
+		this.addObject(car.getFront(), x + 22, y);
+		this.addObject(car.getRear(), x - 22, y);
 		cars.add(car);
+	}
+	
+	public Color getColor(double xPos, double yPos){
+		return map.getImage().getColorAt((int)(xPos - viewFrameX), (int)(yPos - viewFrameY));
+		
 	}
 
 	@Override

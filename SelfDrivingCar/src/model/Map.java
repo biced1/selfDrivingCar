@@ -1,13 +1,11 @@
 package model;
 
-import greenfoot.Greenfoot;
 import greenfoot.GreenfootImage;
 import greenfootAdditions.SmoothMover;
 
 import java.util.List;
 
 import control.Car;
-import control.TestWorld2;
 
 public class Map extends SmoothMover {
 	private static int scale = 4;

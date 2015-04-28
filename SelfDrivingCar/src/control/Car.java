@@ -1,16 +1,19 @@
 package control;
 
 import greenfootAdditions.SmoothMover;
-import greenfootAdditions.Vector;
+
+import java.util.List;
+
 import model.Map;
 
 public class Car extends SmoothMover {
-	private final double maxSpeed = 5;
 	private SmoothMover front = new FrontTire();
 	private SmoothMover rear = new BackTire();
+	private List<Ray> rays;
 
-	public Car() {
+	public Car(List<Ray> rays) {
 		super();
+		this.rays = rays;
 		setRed();
 		setBlue();
 	}
@@ -22,30 +25,21 @@ public class Car extends SmoothMover {
 
 	@Override
 	public void act() {
+		for(Ray r : rays){
+			r.reset(this.getExactX(), this.getExactY(), this.getRotation(), this.getFront().getMovement().getLength());
+			while (!r.isDistanceReached() && !r.hitCurb()){
+				r.step();
+			}
+		}
+		
+		System.out.println();
+		System.out.println();
 		setPosition();
-		calculateCorners();
-		if (this.isTouching(Map.class) && this.isOnRoad()) {
+		if (this.isTouching(Map.class)) {
 			this.setBlue();
 		} else {
 			this.setRed();
 		}
-		// if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
-		// turnLeft();
-		// }
-		// if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("D")) {
-		// turnRight();
-		// }
-		// if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("S")) {
-		// reverse();
-		// }
-		// if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("W")) {
-		// accelerate();
-		// }
-		// if (Greenfoot.isKeyDown("space")) {
-		// brake();
-		// }
-		// adjustSpeed();
-		// move();
 	}
 
 	private void setBlue() {
@@ -54,16 +48,6 @@ public class Car extends SmoothMover {
 
 	private void setRed() {
 		this.setImage("images/regular/redCar.png");
-	}
-	
-	private void calculateCorners() {
-		// backRight.
-	}
-
-	private boolean isOnRoad() {
-		return true;
-		// return (c.getRed() == 255 && c.getBlue() == 255 && c.getGreen() ==
-		// 255);
 	}
 
 	public SmoothMover getFront() {

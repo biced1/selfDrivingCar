@@ -6,7 +6,7 @@ import greenfootAdditions.Vector;
 import java.util.List;
 
 public class BackTire extends SmoothMover {
-	private static int carLength = 70;
+	private static int carLength = 44;
 	private FrontTire frontTire;
 
 	@Override
