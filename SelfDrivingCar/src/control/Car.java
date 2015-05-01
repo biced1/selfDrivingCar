@@ -82,7 +82,6 @@ public class Car extends SmoothMover {
 				bestDirection = ray.getRotation();
 			}
 		}
-		System.out.println(bestDirection);
 		return bestDirection;
 	}
 
