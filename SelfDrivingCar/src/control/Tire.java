@@ -37,15 +37,15 @@ public abstract class Tire extends SmoothMover {
 		move();
 	}
 
-	protected abstract void brake();
+	public abstract void brake();
 
-	protected abstract void accelerate();
+	public abstract void accelerate();
 
-	protected abstract void reverse();
+	public abstract void reverse();
 
-	protected abstract void turnRight();
+	public abstract void turnRight();
 
-	protected abstract void turnLeft();
+	public abstract void turnLeft();
 	
 	protected abstract void adjustSpeed();
 

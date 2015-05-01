@@ -7,6 +7,7 @@ import greenfootAdditions.Vector;
 public class FrontTire extends Tire {
 
 	private final int turnRadius = 45;
+	private int turnSpeed = 3;
 	private int backTireRotation = 0;
 	private int rightTurnMax = turnRadius;
 	private int leftTurnMax = -turnRadius;
@@ -22,16 +23,15 @@ public class FrontTire extends Tire {
 		this.setAngle();
 		this.adjustAngle();
 		super.act();
-		System.out.println(backTireRotation + turn + " " + turn);
 	}
 
 	@Override
-	protected void brake() {
+	public void brake() {
 		this.accelerate(.96);
 	}
 
 	@Override
-	protected void accelerate() {
+	public void accelerate() {
 		int actualRotation = getActualRotation(this.getMovement()
 				.getDirection());
 
@@ -47,7 +47,7 @@ public class FrontTire extends Tire {
 	}
 
 	@Override
-	protected void reverse() {
+	public void reverse() {
 		if (this.getSpeed() == 0) {
 			this.addForce(new Vector(getActualRotation(backTireRotation + 180 + turn), startForce));
 		} else if (reversing() && this.getSpeed() < maxSpeed) {
@@ -59,15 +59,15 @@ public class FrontTire extends Tire {
 	}
 
 	@Override
-	protected void turnRight() {
-			if (turn < 45)
-				turn++;
+	public void turnRight() {
+			if (turn < turnRadius)
+				turn += turnSpeed;
 	}
 
 	@Override
-	protected void turnLeft() {
-			if (turn > -45)
-				turn--;
+	public void turnLeft() {
+			if (turn > -turnRadius)
+				turn -= turnSpeed;
 	}
 	
 	private void setAngle(){

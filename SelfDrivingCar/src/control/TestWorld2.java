@@ -21,7 +21,7 @@ public class TestWorld2 extends World {
 	public TestWorld2() {
 		super(worldWidth, worldHeight, cellSize, false);
 		addMap();
-		addCar(worldWidth / 2, worldHeight / 2);
+		addCar(100, 300);
 	}
 
 	private void addMap() {
@@ -33,12 +33,10 @@ public class TestWorld2 extends World {
 	private void addCar(int x, int y) {
 		List<Ray> rays = new ArrayList<Ray>();
 		for(int i = 0; i < 360; i += 1){
-			System.out.println(i);
 			Ray ray = new Ray(x, y, i, i);
 			this.addObject(ray, x, y);
 			rays.add(ray);
 		}
-		System.out.println(rays.size());
 		Car car = new Car(rays);
 		currentCenter = car;
 		this.addObject(car, x, y);
