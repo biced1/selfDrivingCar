@@ -20,7 +20,6 @@ public class BackTire extends SmoothMover {
 
 	@Override
 	public void act() {
-		setFrontTire();
 		turnTowardsFront();
 		setMovementVector();
 		move();
@@ -43,10 +42,8 @@ public class BackTire extends SmoothMover {
 		this.turnTowards(frontTire.getX(), frontTire.getY());
 	}
 
-	private void setFrontTire() {
-		List<FrontTire> frontTires = this.getObjectsInRange(110,
-				FrontTire.class);
-		this.frontTire = frontTires.get(0);
+	public void setFrontTire(FrontTire frontTire) {
+		this.frontTire = frontTire;
 	}
 
 	private double getDistanceBetweenTires() {

@@ -8,12 +8,13 @@ import java.util.List;
 import model.Map;
 
 public class Car extends SmoothMover {
-	private FrontTire front = new FrontTire();
-	private SmoothMover rear = new BackTire();
+	private BackTire rear = new BackTire();
+	private FrontTire front = new FrontTire(rear);
 	private List<Ray> rays;
 
 	public Car(List<Ray> rays) {
 		super();
+		rear.setFrontTire(front);
 		this.rays = rays;
 		setRed();
 		setBlue();

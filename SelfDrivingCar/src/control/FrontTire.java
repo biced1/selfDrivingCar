@@ -1,7 +1,6 @@
 package control;
 
-import java.util.List;
-
+import greenfootAdditions.SmoothMover;
 import greenfootAdditions.Vector;
 
 public class FrontTire extends Tire {
@@ -9,6 +8,7 @@ public class FrontTire extends Tire {
 	private final int turnRadius = 45;
 	private int turnSpeed = 3;
 	private int backTireRotation = 0;
+	private SmoothMover backTire;
 	private int rightTurnMax = turnRadius;
 	private int leftTurnMax = -turnRadius;
 	private int turn = 0;
@@ -16,6 +16,10 @@ public class FrontTire extends Tire {
 	private double startForce = .5;
 	private static int circle = 360;
 
+	public FrontTire(SmoothMover backTire){
+		this.backTire = backTire;
+	}
+	
 	@Override
 	public void act() {
 		this.updateBackTireDirection();
@@ -199,9 +203,7 @@ public class FrontTire extends Tire {
 	}
 
 	private void updateBackTireDirection() {
-		List<BackTire> backTire = this.getObjectsInRange(110, BackTire.class);
-		if (!backTire.isEmpty())
-			this.backTireRotation = backTire.get(0).getRotation();
+			this.backTireRotation = backTire.getRotation();
 	}
 
 	private void updateTurnRadius() {
