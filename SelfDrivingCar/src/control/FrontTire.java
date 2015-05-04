@@ -36,7 +36,8 @@ public class FrontTire extends Tire {
 				.getDirection());
 
 		if (this.getSpeed() == 0) {
-			this.addForce(new Vector(getActualRotation(backTireRotation + turn), startForce));
+			this.addForce(new Vector(
+					getActualRotation(backTireRotation + turn), startForce));
 		} else if ((actualRotation == this.getRotation()
 				|| actualRotation + 1 == this.getRotation() || actualRotation - 1 == this
 				.getRotation()) && this.getSpeed() < maxSpeed) {
@@ -49,7 +50,8 @@ public class FrontTire extends Tire {
 	@Override
 	public void reverse() {
 		if (this.getSpeed() == 0) {
-			this.addForce(new Vector(getActualRotation(backTireRotation + 180 + turn), startForce));
+			this.addForce(new Vector(getActualRotation(backTireRotation + 180
+					+ turn), startForce));
 		} else if (reversing() && this.getSpeed() < maxSpeed) {
 			this.accelerate(1 + accelerationDelta);
 		} else {
@@ -60,17 +62,17 @@ public class FrontTire extends Tire {
 
 	@Override
 	public void turnRight() {
-			if (turn < turnRadius)
-				turn += turnSpeed;
+		if (turn < turnRadius)
+			turn += turnSpeed;
 	}
 
 	@Override
 	public void turnLeft() {
-			if (turn > -turnRadius)
-				turn -= turnSpeed;
+		if (turn > -turnRadius)
+			turn -= turnSpeed;
 	}
-	
-	private void setAngle(){
+
+	private void setAngle() {
 		if (reversing()) {
 			this.getMovement().setDirection(
 					getActualRotation(backTireRotation + 180 + turn));
@@ -198,7 +200,8 @@ public class FrontTire extends Tire {
 
 	private void updateBackTireDirection() {
 		List<BackTire> backTire = this.getObjectsInRange(110, BackTire.class);
-		this.backTireRotation = backTire.get(0).getRotation();
+		if (!backTire.isEmpty())
+			this.backTireRotation = backTire.get(0).getRotation();
 	}
 
 	private void updateTurnRadius() {

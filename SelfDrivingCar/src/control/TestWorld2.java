@@ -1,11 +1,13 @@
 package control;
 
+import greenfoot.Greenfoot;
 import greenfoot.World;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Button;
 import model.Map;
 
 public class TestWorld2 extends World {
@@ -14,6 +16,7 @@ public class TestWorld2 extends World {
 	public static int worldWidth = 1900;
 	public static int worldHeight = 900;
 	private static int cellSize = 1;
+	private Button addCarButton;
 	private Map map;
 	private Car currentCenter;
 	private List<Car> cars = new ArrayList<Car>();
@@ -21,7 +24,9 @@ public class TestWorld2 extends World {
 	public TestWorld2() {
 		super(worldWidth, worldHeight, cellSize, false);
 		addMap();
-		addCar(100, 300);
+		addCar(100, 325);
+		addCarButton = new Button();
+		this.addObject(addCarButton, worldWidth - 100, worldHeight - 100);
 	}
 
 	private void addMap() {
@@ -52,6 +57,9 @@ public class TestWorld2 extends World {
 
 	@Override
 	public void act() {
+		if(Greenfoot.mouseClicked(addCarButton)){
+			this.addCar(100, 325);
+		}
 		int xMiddle = worldWidth / 2;
 		int yMiddle = worldHeight / 2;
 		double xChange = xMiddle - currentCenter.getExactX();
@@ -60,12 +68,15 @@ public class TestWorld2 extends World {
 		viewFrameY += yChange;
 		map.setLocation(map.getImage().getWidth() / 2 + viewFrameX, map
 				.getImage().getHeight() / 2 + viewFrameY);
-		currentCenter.setLocation(xMiddle, yMiddle);
-		currentCenter.getFront().setLocation(
-				currentCenter.getFront().getExactX() + xChange,
-				currentCenter.getFront().getExactY() + yChange);
-		currentCenter.getRear().setLocation(
-				currentCenter.getRear().getExactX() + xChange,
-				currentCenter.getRear().getExactY() + yChange);
+		for(Car c : cars){
+			c.setLocation(xMiddle, yMiddle);
+			c.getFront().setLocation(
+					c.getFront().getExactX() + xChange,
+					c.getFront().getExactY() + yChange);
+			c.getRear().setLocation(
+					c.getRear().getExactX() + xChange,
+					c.getRear().getExactY() + yChange);
+		}
+		
 	}
 }
