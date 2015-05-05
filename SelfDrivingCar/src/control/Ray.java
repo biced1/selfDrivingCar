@@ -14,6 +14,7 @@ public class Ray extends SmoothMover {
 	private boolean foundCurb = false;
 	private boolean distanceReached = false;
 	private int offset;
+	private GreenfootImage image = new GreenfootImage(5, 5);
 
 	public Ray(double xPos, double yPos, int direction, int offset) {
 		this.setLocation(xPos, yPos);
@@ -21,7 +22,6 @@ public class Ray extends SmoothMover {
 		this.startY = yPos;
 		this.offset = offset;
 		this.setRotation(direction);
-		GreenfootImage image = new GreenfootImage(5, 5);
 		image.setColor(new Color(0, 0, 0));
 		image.fillOval(0, 0, 3, 3);
 		this.setImage(image);
@@ -85,5 +85,10 @@ public class Ray extends SmoothMover {
 	
 	public int getOffset(){
 		return this.offset;
+	}
+	
+	public void setColor(Color c){
+		image.setColor(c);
+		image.fillOval(0, 0, 3, 3);
 	}
 }

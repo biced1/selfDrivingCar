@@ -5,7 +5,6 @@ import greenfootAdditions.SmoothMover;
 import greenfootAdditions.Vector;
 
 import java.awt.Color;
-import java.util.List;
 
 public class BackTire extends SmoothMover {
 	private static int carLength = 44;
