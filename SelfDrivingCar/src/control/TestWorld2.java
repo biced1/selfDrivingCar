@@ -23,7 +23,7 @@ public class TestWorld2 extends World {
 	public TestWorld2() {
 		super(worldWidth, worldHeight, cellSize, false);
 		addMap();
-		addCar(100, 325);
+		addCar(100, 325, 0);
 	}
 
 	private void addMap() {
@@ -32,19 +32,19 @@ public class TestWorld2 extends World {
 				.getHeight() / 2);
 	}
 
-	private void addCar(int x, int y) {
+	private void addCar(int x, int y, int rotation) {
 		List<Ray> rays = new ArrayList<Ray>();
-		for (int i = 0; i < 360; i += 1) {
+		for (int i = 0; i < 360; i += 10) {
 			Ray ray = new Ray(x, y, i, i);
 			this.addObject(ray, x, y);
 			rays.add(ray);
 		}
 		Car car = new Car(rays);
+		car.setRotation(rotation);
 		this.addObject(car, x, y);
-		this.addObject(car.getFront(), x + 22, y);
-		this.addObject(car.getRear(), x - 22, y);
+		this.addObject(car.getFront(), (int)(x + 22 * Math.cos(rotation * Math.PI/180)), (int)(y + 22 * Math.sin(rotation * Math.PI/180)));
+		this.addObject(car.getRear(), (int)(x - 22 * Math.cos(rotation * Math.PI/180)), (int)(y - 22 * Math.sin(rotation * Math.PI/180)));
 		cars.add(car);
-		// currentCenter = cars.size() - 1;
 	}
 
 	public Color getColor(double xPos, double yPos) {
@@ -63,6 +63,17 @@ public class TestWorld2 extends World {
 		currentCenter -= 1;
 		if (currentCenter < 0) {
 			currentCenter = cars.size() - 1;
+		}
+	}
+
+	private void addCarAtMousePosition(int rotation) {
+		MouseInfo mouse = Greenfoot.getMouseInfo();
+		if (mouse != null) {
+			Color c = getColor(mouse.getX(), mouse.getY());
+			if (!(c.getRed() == 224 && 230 < c.getBlue() && c.getBlue() < 240
+					&& 223 < c.getGreen() && c.getGreen() < 233)) {
+				addCar(mouse.getX(), mouse.getY(), rotation);
+			}
 		}
 	}
 
@@ -89,10 +100,17 @@ public class TestWorld2 extends World {
 		if ("x".equals(key) || "X".equals(key)) {
 			setNextAsCurrent();
 		}
-		if ("c".equals(key) || "C".equals(key)) {
-			MouseInfo mouse = Greenfoot.getMouseInfo();
-			if (mouse != null)
-				addCar(mouse.getX(), mouse.getY());
+		if ("l".equals(key) || "L".equals(key)) {
+			addCarAtMousePosition(0);
+		}
+		if ("k".equals(key) || "K".equals(key)) {
+			addCarAtMousePosition(90);
+		}
+		if ("j".equals(key) || "J".equals(key)) {
+			addCarAtMousePosition(180);
+		}
+		if ("i".equals(key) || "I".equals(key)) {
+			addCarAtMousePosition(270);
 		}
 
 	}

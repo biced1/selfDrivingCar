@@ -55,10 +55,8 @@ public class Car extends SmoothMover {
 		if (inIntersection()) {
 			if (getMaxDistance(getRaysBetween(330, 360)) < 125 && getMaxDistance(getRaysBetween(0, 30)) < 125) {
 				if (inRightIntersection()) {
-					System.out.println("right");
 					this.front.turnLeft();
 				} else if (inLeftIntersection()) {
-					System.out.println("left");
 					this.front.turnRight();
 				}
 			} else {
