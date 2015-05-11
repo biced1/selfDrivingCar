@@ -8,10 +8,14 @@ import greenfootAdditions.SmoothMover;
 
 public abstract class Tire extends SmoothMover {
 	protected final double maxSpeed = 5;
+	private int tireSize = 10;
+	private int redValue = 84;
+	private int greenValue = 84;
+	private int blueValue = 84;
 
 	public Tire() {
-		GreenfootImage tire = new GreenfootImage(10, 10);
-		tire.setColor(new Color(84, 84, 84));
+		GreenfootImage tire = new GreenfootImage(tireSize, tireSize);
+		tire.setColor(new Color(redValue, greenValue, blueValue));
 		tire.fill();
 		this.setImage(tire);
 	}

@@ -15,11 +15,17 @@ public class FrontTire extends Tire {
 	private double accelerationDelta = .05;
 	private double startForce = .5;
 	private static int circle = 360;
+	private double accelerationVelocity = 1 + accelerationDelta;
+	private double decelerationVelocity = 1 - accelerationDelta;
+	private double brakeVelocity = .96;
+	private double frictionVelocity = .99;
+	
+	private static int halfCircle = 180;
 
-	public FrontTire(SmoothMover backTire){
+	public FrontTire(SmoothMover backTire) {
 		this.backTire = backTire;
 	}
-	
+
 	@Override
 	public void act() {
 		this.updateBackTireDirection();
@@ -31,35 +37,35 @@ public class FrontTire extends Tire {
 
 	@Override
 	public void brake() {
-		this.accelerate(.96);
+		this.accelerate(brakeVelocity);
 	}
 
 	@Override
 	public void accelerate() {
+		int rotationThreshold = 1;
 		int actualRotation = getActualRotation(this.getMovement()
 				.getDirection());
 
-		if (this.getSpeed() == 0) {
+		if (isStopped()) {
 			this.addForce(new Vector(
 					getActualRotation(backTireRotation + turn), startForce));
-		} else if ((actualRotation == this.getRotation()
-				|| actualRotation + 1 == this.getRotation() || actualRotation - 1 == this
-				.getRotation()) && this.getSpeed() < maxSpeed) {
-			this.accelerate(1 + accelerationDelta);
+		} else if (isWithinThreshold(actualRotation, this.getRotation(),
+				rotationThreshold) && this.getSpeed() < maxSpeed) {
+			this.accelerate(accelerationVelocity);
 		} else {
-			this.accelerate(1 - accelerationDelta);
+			this.accelerate(decelerationVelocity);
 		}
 	}
 
 	@Override
 	public void reverse() {
-		if (this.getSpeed() == 0) {
-			this.addForce(new Vector(getActualRotation(backTireRotation + 180
-					+ turn), startForce));
+		if (isStopped()) {
+			this.addForce(new Vector(getActualRotation(getReverse(this
+					.getRotation()) + turn), startForce));
 		} else if (reversing() && this.getSpeed() < maxSpeed) {
-			this.accelerate(1 + accelerationDelta);
+			this.accelerate(accelerationVelocity);
 		} else {
-			this.accelerate(1 - accelerationDelta);
+			this.accelerate(decelerationVelocity);
 		}
 
 	}
@@ -76,10 +82,12 @@ public class FrontTire extends Tire {
 			turn -= turnSpeed;
 	}
 
+
+
 	private void setAngle() {
 		if (reversing()) {
 			this.getMovement().setDirection(
-					getActualRotation(backTireRotation + 180 + turn));
+					getActualRotation(getReverse(this.getRotation()) + turn));
 		} else {
 			this.getMovement().setDirection(
 					getActualRotation(backTireRotation + turn));
@@ -187,23 +195,14 @@ public class FrontTire extends Tire {
 
 	public boolean reversing() {
 		int threshold = 20;
-		int reverseRotation = this.getRotation() > 179 ? this.getRotation() - 180
-				: this.getRotation() + 180;
-
-		int actualRotation = this.getMovement().getDirection() % circle;
-		if (actualRotation < 0) {
-			actualRotation += circle;
-		}
-		return (actualRotation - threshold < reverseRotation && reverseRotation < actualRotation
-				+ threshold)
-				|| (actualRotation - threshold + circle < reverseRotation && reverseRotation < actualRotation
-						+ circle + threshold)
-				|| (actualRotation - threshold - circle < reverseRotation && reverseRotation < actualRotation
-						+ threshold - circle);
+		int reverseRotation = getReverse(this.getRotation());
+		int actualRotation = getActualRotation(this.getMovement().getDirection());
+		
+		return (isWithinThreshold(getActualRotation(actualRotation - threshold), reverseRotation, threshold));
 	}
 
 	private void updateBackTireDirection() {
-			this.backTireRotation = backTire.getRotation();
+		this.backTireRotation = backTire.getRotation();
 	}
 
 	private void updateTurnRadius() {
@@ -212,13 +211,13 @@ public class FrontTire extends Tire {
 		if (leftTurnMax < 0) {
 			leftTurnMax += circle;
 		}
-		if (rightTurnMax > 359) {
+		if (rightTurnMax >= circle) {
 			rightTurnMax -= circle;
 		}
 	}
 
 	private int getReverse(int rotation) {
-		return rotation > 179 ? rotation - 180 : rotation + 180;
+		return rotation > 179 ? rotation - halfCircle : rotation + halfCircle;
 	}
 
 	private boolean inRange(int rotation) {
@@ -249,8 +248,17 @@ public class FrontTire extends Tire {
 
 	@Override
 	protected void adjustSpeed() {
-		this.accelerate(.99);
+		this.accelerate(frictionVelocity);
+	}
+	
+	private boolean isStopped() {
+		return this.getSpeed() == 0;
+	}
 
+	private boolean isWithinThreshold(int testValue, int prefferedValue,
+			int threshold) {
+		return prefferedValue - threshold <= testValue
+				&& testValue <= prefferedValue + threshold;
 	}
 
 }

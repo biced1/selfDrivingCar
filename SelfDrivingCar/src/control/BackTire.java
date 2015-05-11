@@ -9,10 +9,13 @@ import java.awt.Color;
 public class BackTire extends SmoothMover {
 	private static int carLength = 44;
 	private FrontTire frontTire;
+	private int tireSize = 5;
+	private int gray = 88;
+	private int squared = 2;
 
 	public BackTire() {
-		GreenfootImage tire = new GreenfootImage(10, 10);
-		tire.setColor(new Color(84, 84, 84));
+		GreenfootImage tire = new GreenfootImage(tireSize, tireSize);
+		tire.setColor(new Color(gray, gray, gray));
 		tire.fill();
 		this.setImage(tire);
 	}
@@ -46,7 +49,7 @@ public class BackTire extends SmoothMover {
 	}
 
 	private double getDistanceBetweenTires() {
-		return Math.sqrt(Math.pow(frontTire.getExactY() - this.getExactY(), 2)
-				+ Math.pow(frontTire.getExactX() - this.getExactX(), 2));
+		return Math.sqrt(Math.pow(frontTire.getExactY() - this.getExactY(), squared)
+				+ Math.pow(frontTire.getExactX() - this.getExactX(), squared));
 	}
 }

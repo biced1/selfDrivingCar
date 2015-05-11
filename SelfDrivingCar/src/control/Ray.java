@@ -8,13 +8,26 @@ import java.awt.Color;
 public class Ray extends SmoothMover {
 	private double startX;
 	private double startY;
+
 	private double maxLength = 200;
+	private double minLength = 200;
+
 	private double currentDistance = 0;
-	private double stepSize = 3;
+	private double stepSize = 5;
 	private boolean foundCurb = false;
 	private boolean distanceReached = false;
 	private int offset;
-	private GreenfootImage image = new GreenfootImage(5, 5);
+	private int size = 3;
+	private int middle = 0;
+
+	private int redValue = 0;
+	private int greenValue = 0;
+	private int blueValue = 0;
+
+	private int circle = 360;
+	private int halfCircle = 180;
+	private int squared = 2;
+	private GreenfootImage image = new GreenfootImage(size, size);
 
 	public Ray(double xPos, double yPos, int direction, int offset) {
 		this.setLocation(xPos, yPos);
@@ -22,21 +35,19 @@ public class Ray extends SmoothMover {
 		this.startY = yPos;
 		this.offset = offset;
 		this.setRotation(direction);
-		image.setColor(new Color(0, 0, 0));
-		image.fillOval(0, 0, 3, 3);
+		image.setColor(new Color(redValue, greenValue, blueValue));
+		image.fillOval(middle, middle, size, size);
 		this.setImage(image);
 	}
 
 	public void step() {
-		double xChange = stepSize
-				* Math.cos(this.getRotation() * Math.PI / 180);
-		double yChange = stepSize
-				* Math.sin(this.getRotation() * Math.PI / 180);
+		double xChange = stepSize * getXComponent(this.getRotation());
+		double yChange = stepSize * getYComponent(this.getRotation());
 
 		this.setLocation(this.getExactX() + xChange, this.getExactY() + yChange);
 
-		currentDistance = Math.sqrt(Math.pow(this.getExactY() - startY, 2)
-				+ Math.pow(this.getExactX() - startX, 2));
+		currentDistance = getDistance(this.getExactX(), this.getExactY(),
+				startX, startY);
 
 		if (!this.isOnRoad()) {
 			foundCurb = true;
@@ -59,36 +70,74 @@ public class Ray extends SmoothMover {
 	}
 
 	public void reset(double xPos, double yPos, int rotation, double speed) {
+		int lookaheadConstant = 50;
+
 		this.startX = xPos;
 		this.startY = yPos;
-		maxLength = speed < 2 ? 200 : speed * 50 + 100;
+
+		maxLength = speed * lookaheadConstant;
+		if (maxLength < minLength) {
+			maxLength = minLength;
+		}
 		this.setLocation(xPos, yPos);
 		this.setRotation(rotation + offset);
-		if (this.getRotation() > 359) {
-			this.setRotation(this.getRotation() - 360);
+		if (this.getRotation() >= circle) {
+			this.setRotation(this.getRotation() - circle);
 		}
 		foundCurb = false;
 		distanceReached = false;
 	}
 
 	private boolean isOnRoad() {
-		Color c = new Color(224, 230, 235);
+		int invalidRedValue = 224;
+		int redErrorThreshold = 0;
+		int invalidBlueValue = 235;
+		int blueErrorThreshold = 5;
+		int invalidGreenValue = 228;
+		int greenErrorThreshold = 5;
+
+		Color testColor = new Color(invalidRedValue, invalidGreenValue,
+				invalidBlueValue);
 		try {
-			c = ((TestWorld2) this.getWorld()).getColor(this.getExactX(),
-					this.getExactY());
+			testColor = ((TestWorld2) this.getWorld()).getColor(
+					this.getExactX(), this.getExactY());
 		} catch (IndexOutOfBoundsException e) {
 
 		}
-		return !(c.getRed() == 224 && 230 < c.getBlue() && c.getBlue() < 240
-				&& 223 < c.getGreen() && c.getGreen() < 233);
+		return !(isWithinThreshold(testColor.getRed(), invalidRedValue,
+				redErrorThreshold)
+				&& isWithinThreshold(testColor.getBlue(), invalidBlueValue,
+						blueErrorThreshold) && isWithinThreshold(
+					testColor.getGreen(), invalidGreenValue,
+					greenErrorThreshold));
 	}
-	
-	public int getOffset(){
+
+	private boolean isWithinThreshold(int testValue, int prefferedValue,
+			int threshold) {
+		return prefferedValue - threshold <= testValue
+				&& testValue <= prefferedValue + threshold;
+	}
+
+	public int getOffset() {
 		return this.offset;
 	}
-	
-	public void setColor(Color c){
+
+	public void setColor(Color c) {
 		image.setColor(c);
-		image.fillOval(0, 0, 3, 3);
+		image.fillOval(middle, middle, size, size);
+	}
+
+	private double getDistance(double firstX, double firstY, double secondX,
+			double secondY) {
+		return Math.sqrt(Math.pow(firstY - secondY, squared)
+				+ Math.pow(firstX - secondX, squared));
+	}
+
+	private double getXComponent(int degrees) {
+		return Math.cos(degrees * Math.PI / halfCircle);
+	}
+
+	private double getYComponent(int degrees) {
+		return Math.sin(degrees * Math.PI / halfCircle);
 	}
 }
