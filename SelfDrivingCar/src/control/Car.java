@@ -8,52 +8,77 @@ import java.util.List;
 import model.Map;
 
 public class Car extends SmoothMover {
-	private BackTire rear = new BackTire();
-	private FrontTire front = new FrontTire(rear);
+	private BackTire rearTire = new BackTire();
+	private FrontTire frontTire = new FrontTire(rearTire);
 	private List<Ray> rays;
-	private double speed = 3;
+	private final double maxSpeed = 3;
+	private double speed = maxSpeed;
+
+	private int halfCircle = 180;
+	private int circle = 360;
+	private int quarterCircle = 90;
+	private int threeQuarterCircle = 270;
+
+	private int leftRay = 270;
+	private int rightRay = 90;
+	private int rayThreshold = 15;
+
+	private String blueCarPath = "images/regular/blueCar.png";
+	private String redCarPath = "images/regular/redCar.png";
 
 	public Car(List<Ray> rays) {
 		super();
-		rear.setFrontTire(front);
+		rearTire.setFrontTire(frontTire);
 		this.rays = rays;
 		setRed();
 		setBlue();
 	}
 
 	private void setPosition() {
-		this.setLocation((front.getExactX() + rear.getExactX()) / 2, (front.getExactY() + rear.getExactY()) / 2);
-		this.setRotation(rear.getRotation());
+		double xCenter = (frontTire.getExactX() + rearTire.getExactX()) / 2;
+		double yCenter = (frontTire.getExactY() + rearTire.getExactY()) / 2;
+
+		this.setLocation(xCenter, yCenter);
+		this.setRotation(rearTire.getRotation());
 	}
 
 	@Override
 	public void act() {
 		traceRays();
 		setPosition();
-		inIntersection();
+		setColor();
+		drive();
+	}
+
+	private void setColor() {
 		if (this.isTouching(Map.class)) {
 			this.setBlue();
 		} else {
 			this.setRed();
 		}
+	}
+
+	private void drive() {
 		if (this.getFront().getSpeed() < speed) {
 			this.getFront().accelerate();
 		}
 
-		if (inIntersection()) {
+		if (inIntersection(leftRay - rayThreshold, leftRay + rayThreshold) || inIntersection(rightRay - rayThreshold, rightRay + rayThreshold)) {
 			handleIntersection();
 		} else {
 			followRoad();
 		}
-
 	}
 
 	private void handleIntersection() {
-		if (getMaxDistance(getRaysBetween(330, 360)) < 125 && getMaxDistance(getRaysBetween(0, 30)) < 125) {
-			if (inRightIntersection()) {
-				this.front.turnLeft();
-			} else if (inLeftIntersection()) {
-				this.front.turnRight();
+		int frontMinimumDistance = 125;
+		int frontRayRange = 30;
+
+		if (getMaxDistance(getFrontRays(frontRayRange)) < frontMinimumDistance) {
+			if (inIntersection(rightRay - rayThreshold, rightRay + rayThreshold)) {
+				this.frontTire.turnLeft();
+			} else if (inIntersection(leftRay - rayThreshold, leftRay + rayThreshold)) {
+				this.frontTire.turnRight();
 			}
 		} else {
 			straightenOut();
@@ -61,39 +86,47 @@ public class Car extends SmoothMover {
 	}
 
 	private void followRoad() {
-		double leftWallSlope = averageSlope(getRaysBetween(255, 285));
-		double rightWallSlope = averageSlope(getRaysBetween(75, 105));
-		double roadSlope = Math.atan((leftWallSlope + rightWallSlope) / 2) * 180 / Math.PI;
-		roadSlope = slopeToDegrees(roadSlope);
-		double leftMinDistance = getLeftMinDistance();
-		double rightMinDistance = getRightMinDistance();
-		int frontRotation = this.front.getRotation();
-		int closestDegree = closestDegree(frontRotation, (int) roadSlope, (int) getReflection(roadSlope));
+		int frontMinimumDistance = 125;
+		int frontRayRange = 30;
 
-		if (getMaxDistance(getRaysBetween(330, 360)) < 125 && getMaxDistance(getRaysBetween(0, 30)) < 125) {
-			if (!inIntersection()) {
-				speed = 0;
-				this.front.brake();
-			}
-		} else if (leftMinDistance < rightMinDistance * 2) {
-			speed = 3;
+		double leftWallSlope = averageSlope(getRaysBetween(leftRay - rayThreshold, leftRay + rayThreshold));
+		double rightWallSlope = averageSlope(getRaysBetween(rightRay - rayThreshold, rightRay + rayThreshold));
+		double roadDegrees = slopeToDegrees((leftWallSlope + rightWallSlope) / 2);
+
+		double leftMinDistance = getMinDistance(leftRay, leftRay);
+		double rightMinDistance = getMinDistance(rightRay, rightRay);
+		
+		double laneOffset = 1.5;
+
+		int frontRotation = this.frontTire.getRotation();
+
+		int closestDegree = closestDegree(frontRotation, (int) roadDegrees, (int) getReflection(roadDegrees));
+
+		if (getMaxDistance(getFrontRays(frontRayRange)) < frontMinimumDistance
+				&& !(inIntersection(leftRay - rayThreshold, leftRay + rayThreshold) || inIntersection(rightRay - rayThreshold, rightRay + rayThreshold))) {
+			speed = 0;
+			this.frontTire.brake();
+		} else if (leftMinDistance / laneOffset < rightMinDistance * laneOffset) {
+			speed = maxSpeed;
 			if (counterClockwiseDegreesAway(frontRotation, closestDegree) <= 5 || clockwiseDegreesAway(frontRotation, closestDegree) <= 180) {
-				this.front.turnRight();
+				this.frontTire.turnRight();
 			} else {
 				straightenOut();
 			}
-		} else if (rightMinDistance * 2 < leftMinDistance) {
-			speed = 3;
+		} else if (rightMinDistance * laneOffset < leftMinDistance / laneOffset) {
+			speed = maxSpeed;
 			if (clockwiseDegreesAway(frontRotation, closestDegree) <= 5 || counterClockwiseDegreesAway(frontRotation, closestDegree) <= 180) {
-				this.front.turnLeft();
+				this.frontTire.turnLeft();
 			} else {
 				straightenOut();
 			}
 		}
 	}
 
-	private boolean inIntersection() {
-		return inLeftIntersection() || inRightIntersection();
+	private List<Ray> getFrontRays(int threshold) {
+		List<Ray> frontRays = getRaysBetween(circle - threshold, circle);
+		frontRays.addAll(getRaysBetween(0, threshold));
+		return frontRays;
 	}
 
 	private double getMaxDistance(List<Ray> rays) {
@@ -106,21 +139,10 @@ public class Car extends SmoothMover {
 		return maxDistance;
 	}
 
-	private boolean inLeftIntersection() {
+	private boolean inIntersection(int firstRay, int secondRay) {
 		boolean inIntersection = false;
-		List<Ray> leftRays = getRaysBetween(60, 110);
+		List<Ray> leftRays = getRaysBetween(firstRay, secondRay);
 		for (Ray r : leftRays) {
-			if (r.isDistanceReached()) {
-				inIntersection = true;
-			}
-		}
-		return inIntersection;
-	}
-
-	private boolean inRightIntersection() {
-		boolean inIntersection = false;
-		List<Ray> rightRays = getRaysBetween(250, 300);
-		for (Ray r : rightRays) {
 			if (r.isDistanceReached()) {
 				inIntersection = true;
 			}
@@ -130,11 +152,11 @@ public class Car extends SmoothMover {
 
 	private double getReflection(double degree) {
 		double reflected = degree;
-		if (0 <= degree && degree <= 90) {
-			reflected += 180;
+		if (0 <= degree && degree <= quarterCircle) {
+			reflected += halfCircle;
 		}
-		if (270 <= degree && degree < 360) {
-			reflected -= 180;
+		if (threeQuarterCircle <= degree && degree < circle) {
+			reflected -= halfCircle;
 		}
 
 		return reflected;
@@ -158,13 +180,14 @@ public class Car extends SmoothMover {
 	}
 
 	private int slopeToDegrees(double slope) {
-		int degree = 0;
+		slope = Math.atan(slope) * halfCircle / Math.PI;
+		int degree;
 		if (Double.isNaN(slope)) {
-			degree = 90;
+			degree = quarterCircle;
 		} else if (Double.isInfinite(slope)) {
 			degree = 0;
 		} else if ((int) slope < 0) {
-			degree = (int) slope + 360;
+			degree = (int) slope + circle;
 		} else {
 			degree = (int) slope;
 		}
@@ -182,11 +205,12 @@ public class Car extends SmoothMover {
 	}
 
 	private void straightenOut() {
-		if (clockwiseDegreesAway(this.getRotation(), this.front.getRotation()) < 50 && clockwiseDegreesAway(this.getRotation(), this.front.getRotation()) > 0) {
-			this.front.turnLeft();
-		} else if (counterClockwiseDegreesAway(this.getRotation(), this.front.getRotation()) < 50
-				&& counterClockwiseDegreesAway(this.getRotation(), this.front.getRotation()) > 0) {
-			this.front.turnRight();
+		if (clockwiseDegreesAway(this.getRotation(), this.frontTire.getRotation()) < halfCircle
+				&& clockwiseDegreesAway(this.getRotation(), this.frontTire.getRotation()) > 0) {
+			this.frontTire.turnLeft();
+		} else if (counterClockwiseDegreesAway(this.getRotation(), this.frontTire.getRotation()) < halfCircle
+				&& counterClockwiseDegreesAway(this.getRotation(), this.frontTire.getRotation()) > 0) {
+			this.frontTire.turnRight();
 		}
 	}
 
@@ -194,8 +218,8 @@ public class Car extends SmoothMover {
 		int degreesAway = 0;
 		while (rotationFacing != rotationToTurn) {
 			rotationFacing++;
-			if (rotationFacing > 359) {
-				rotationFacing -= 360;
+			if (rotationFacing >= circle) {
+				rotationFacing -= circle;
 			}
 			degreesAway++;
 		}
@@ -207,7 +231,7 @@ public class Car extends SmoothMover {
 		while (rotationFacing != rotationToTurn) {
 			rotationFacing--;
 			if (rotationFacing < 0) {
-				rotationFacing += 360;
+				rotationFacing += circle;
 			}
 			degreesAway++;
 		}
@@ -228,9 +252,9 @@ public class Car extends SmoothMover {
 		return totalY / totalX;
 	}
 
-	private double getLeftMinDistance() {
+	private double getMinDistance(int firstRay, int lastRay) {
 		double leftDistance = 1000;
-		List<Ray> leftRays = getRaysBetween(270, 270);
+		List<Ray> leftRays = getRaysBetween(firstRay, lastRay);
 		for (Ray r : leftRays) {
 			double distance = r.getDistance();
 			if (distance < leftDistance) {
@@ -238,18 +262,6 @@ public class Car extends SmoothMover {
 			}
 		}
 		return leftDistance;
-	}
-
-	private double getRightMinDistance() {
-		double rightDistance = 1000;
-		List<Ray> rightRays = getRaysBetween(90, 90);
-		for (Ray r : rightRays) {
-			double distance = r.getDistance();
-			if (distance < rightDistance) {
-				rightDistance = distance;
-			}
-		}
-		return rightDistance;
 	}
 
 	private List<Ray> getRaysBetween(int offset1, int offset2) {
@@ -263,18 +275,18 @@ public class Car extends SmoothMover {
 	}
 
 	private void setBlue() {
-		this.setImage("images/regular/blueCar.png");
+		this.setImage(blueCarPath);
 	}
 
 	private void setRed() {
-		this.setImage("images/regular/redCar.png");
+		this.setImage(redCarPath);
 	}
 
 	public FrontTire getFront() {
-		return front;
+		return frontTire;
 	}
 
 	public SmoothMover getRear() {
-		return rear;
+		return rearTire;
 	}
 }
