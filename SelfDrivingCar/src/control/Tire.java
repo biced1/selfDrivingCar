@@ -1,10 +1,9 @@
 package control;
 
-import java.awt.Color;
-
-import greenfoot.Greenfoot;
 import greenfoot.GreenfootImage;
 import greenfootAdditions.SmoothMover;
+
+import java.awt.Color;
 
 public abstract class Tire extends SmoothMover {
 	protected final double maxSpeed = 5;
@@ -22,21 +21,21 @@ public abstract class Tire extends SmoothMover {
 
 	@Override
 	public void act() {
-		if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
-			turnLeft();
-		}
-		if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("D")) {
-			turnRight();
-		}
-		if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("S")) {
-			reverse();
-		}
-		if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("W")) {
-			accelerate();
-		}
-		if (Greenfoot.isKeyDown("space")) {
-			brake();
-		}
+//		if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("A")) {
+//			turnLeft();
+//		}
+//		if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("D")) {
+//			turnRight(1);
+//		}
+//		if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("S")) {
+//			reverse();
+//		}
+//		if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("W")) {
+//			accelerate();
+//		}
+//		if (Greenfoot.isKeyDown("space")) {
+//			brake();
+//		}
 		adjustSpeed();
 		move();
 	}
@@ -47,9 +46,9 @@ public abstract class Tire extends SmoothMover {
 
 	public abstract void reverse();
 
-	public abstract void turnRight();
+	public abstract void turnRight(double speed);
 
-	public abstract void turnLeft();
+	public abstract void turnLeft(double speed);
 	
 	protected abstract void adjustSpeed();
 

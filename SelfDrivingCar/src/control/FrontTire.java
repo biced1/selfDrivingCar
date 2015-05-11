@@ -6,7 +6,6 @@ import greenfootAdditions.Vector;
 public class FrontTire extends Tire {
 
 	private final int turnRadius = 45;
-	private int turnSpeed = 3;
 	private int backTireRotation = 0;
 	private SmoothMover backTire;
 	private int rightTurnMax = turnRadius;
@@ -71,15 +70,15 @@ public class FrontTire extends Tire {
 	}
 
 	@Override
-	public void turnRight() {
+	public void turnRight(double speed) {
 		if (turn < turnRadius)
-			turn += turnSpeed;
+			turn += speed;
 	}
 
 	@Override
-	public void turnLeft() {
+	public void turnLeft(double speed) {
 		if (turn > -turnRadius)
-			turn -= turnSpeed;
+			turn -= speed;
 	}
 
 

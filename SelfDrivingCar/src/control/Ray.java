@@ -9,11 +9,11 @@ public class Ray extends SmoothMover {
 	private double startX;
 	private double startY;
 
-	private double maxLength = 200;
-	private double minLength = 200;
+	private double rayLength = 200;
+	private double minLength = 300;
 
 	private double currentDistance = 0;
-	private double stepSize = 5;
+	private double stepSize = 1;
 	private boolean foundCurb = false;
 	private boolean distanceReached = false;
 	private int offset;
@@ -52,7 +52,7 @@ public class Ray extends SmoothMover {
 		if (!this.isOnRoad()) {
 			foundCurb = true;
 		}
-		if (currentDistance > maxLength) {
+		if (currentDistance > rayLength) {
 			distanceReached = true;
 		}
 	}
@@ -75,9 +75,9 @@ public class Ray extends SmoothMover {
 		this.startX = xPos;
 		this.startY = yPos;
 
-		maxLength = speed * lookaheadConstant;
-		if (maxLength < minLength) {
-			maxLength = minLength;
+		rayLength = speed * lookaheadConstant;
+		if (rayLength < minLength) {
+			rayLength = minLength;
 		}
 		this.setLocation(xPos, yPos);
 		this.setRotation(rotation + offset);

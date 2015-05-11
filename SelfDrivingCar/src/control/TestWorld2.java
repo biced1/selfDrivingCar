@@ -18,13 +18,17 @@ public class TestWorld2 extends World {
 	public static int worldHeight = 900;
 	private static int cellSize = 1;
 
+	private boolean isFocused = true;
+
+	private static int panSpeed = 10;
+
 	private Map map;
 
 	private int currentCenter;
 	private List<Car> cars = new ArrayList<Car>();
 
-	private static int carInitialX = 100;
-	private static int carInitialY = 325;
+//	private static int carInitialX = 100;
+//	private static int carInitialY = 325;
 	private static int carInitialRotation = 0;
 
 	private static int carRadius = 22;
@@ -36,7 +40,6 @@ public class TestWorld2 extends World {
 	public TestWorld2() {
 		super(worldWidth, worldHeight, cellSize, false);
 		addMap();
-		addCar(carInitialX, carInitialY, carInitialRotation);
 	}
 
 	private void addMap() {
@@ -51,7 +54,7 @@ public class TestWorld2 extends World {
 		List<Ray> carRays = new ArrayList<Ray>();
 		int raysStartingDegree = 0;
 		int raysEndingDegree = 359;
-		int rayFrequency = 10;
+		int rayFrequency = 1;
 
 		for (int i = raysStartingDegree; i <= raysEndingDegree; i += rayFrequency) {
 			Ray ray = new Ray(x, y, i, i);
@@ -113,17 +116,21 @@ public class TestWorld2 extends World {
 
 	@Override
 	public void act() {
-		setActors();
 		respondToKeyEvent();
+		setActors();
 	}
 
 	private void setActors() {
 		int xMiddle = worldWidth / 2;
 		int yMiddle = worldHeight / 2;
 
-		double xChange = xMiddle - cars.get(currentCenter).getExactX();
-		double yChange = yMiddle - cars.get(currentCenter).getExactY();
+		double xChange = 0;
+		double yChange = 0;
 
+		if (isFocused && !cars.isEmpty()) {
+			xChange = xMiddle - cars.get(currentCenter).getExactX();
+			yChange = yMiddle - cars.get(currentCenter).getExactY();
+		}
 		viewFrameX += xChange;
 		viewFrameY += yChange;
 
@@ -134,15 +141,18 @@ public class TestWorld2 extends World {
 		for (Car c : cars) {
 			c.getFront().setLocation(c.getFront().getExactX() + xChange, c.getFront().getExactY() + yChange);
 			c.getRear().setLocation(c.getRear().getExactX() + xChange, c.getRear().getExactY() + yChange);
+			c.setPosition();
 		}
 	}
 
 	private void respondToKeyEvent() {
 		String key = Greenfoot.getKey();
 		if ("z".equals(key) || "Z".equals(key)) {
+			isFocused = true;
 			setPrevAsCurrent();
 		}
 		if ("x".equals(key) || "X".equals(key)) {
+			isFocused = true;
 			setNextAsCurrent();
 		}
 		if ("l".equals(key) || "L".equals(key)) {
@@ -156,6 +166,34 @@ public class TestWorld2 extends World {
 		}
 		if ("i".equals(key) || "I".equals(key)) {
 			addCarAtCurrentMousePosition(threeQuarterCircle);
+		}
+		if (Greenfoot.isKeyDown("up")) {
+			isFocused = false;
+			viewFrameY += panSpeed;
+			pan(0, panSpeed);
+		}
+		if (Greenfoot.isKeyDown("down")) {
+			isFocused = false;
+			viewFrameY -= panSpeed;
+			pan(0, -panSpeed);
+		}
+		if (Greenfoot.isKeyDown("left")) {
+			isFocused = false;
+			viewFrameX += panSpeed;
+			pan(panSpeed, 0);
+		}
+		if (Greenfoot.isKeyDown("right")) {
+			isFocused = false;
+			viewFrameX -= panSpeed;
+			pan(-panSpeed, 0);
+		}
+	}
+
+	private void pan(int x, int y) {
+		for (Car car : cars) {
+			car.getFront().setLocation(car.getFront().getExactX() + x, car.getFront().getExactY() + y);
+			car.getRear().setLocation(car.getRear().getExactX() + x, car.getRear().getExactY() + y);
+			car.setPosition();
 		}
 	}
 
