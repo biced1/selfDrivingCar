@@ -9,7 +9,7 @@ import java.awt.Color;
 public class BackTire extends SmoothMover {
 	private static int carLength = 44;
 	private FrontTire frontTire;
-	private int tireSize = 5;
+	private int tireSize = 10;
 	private int gray = 88;
 	private int squared = 2;
 

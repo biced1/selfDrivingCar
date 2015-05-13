@@ -85,7 +85,7 @@ public class Car extends SmoothMover {
 		if (getMaxDistance(getFrontRays(frontRayRange)) < frontMinimumDistance) {
 			speed = minSpeed;
 			if (inIntersection(rightRay - rayThreshold, rightRay + rayThreshold)) {
-				this.frontTire.turnRight(gentleTurn);
+				this.frontTire.turnRight(maxTurn);
 			} else if (inIntersection(leftRay - rayThreshold, leftRay + rayThreshold)) {
 				this.frontTire.turnLeft(maxTurn);
 			}
@@ -95,7 +95,7 @@ public class Car extends SmoothMover {
 	}
 
 	private void followRoad() {
-		int frontMinimumDistance = 200;
+		int frontMinimumDistance = 125;
 		int frontRayRange = 30;
 		double laneOffset = 1.5;
 		double crosstrackDegreeAdjust = 5;
@@ -117,7 +117,8 @@ public class Car extends SmoothMover {
 
 		double maxFrontDistance = getMaxDistance(getFrontRays(frontRayRange));
 		if (maxFrontDistance < frontMinimumDistance) {
-			speed = (maxFrontDistance - 100) / 35;
+//			speed = (maxFrontDistance - 100) / 35;
+			speed = 0;
 			this.frontTire.brake();
 		} else {
 			speed = maxSpeed;

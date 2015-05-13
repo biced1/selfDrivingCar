@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Map;
+import view.SetupInput;
 
 public class TestWorld2 extends World {
 	private double viewFrameX = 0;
@@ -27,8 +28,6 @@ public class TestWorld2 extends World {
 	private int currentCenter;
 	private List<Car> cars = new ArrayList<Car>();
 
-//	private static int carInitialX = 100;
-//	private static int carInitialY = 325;
 	private static int carInitialRotation = 0;
 
 	private static int carRadius = 22;
@@ -36,15 +35,18 @@ public class TestWorld2 extends World {
 	private static int quarterCircle = 90;
 	private static int halfCircle = 2 * quarterCircle;
 	private static int threeQuarterCircle = 3 * quarterCircle;
-
+	private SetupInput setup = new SetupInput();
+	private MapIO mapDownloader = new MapIO();
 	public TestWorld2() {
 		super(worldWidth, worldHeight, cellSize, false);
 		addMap();
+		setup.displayInputs();
+		mapDownloader.downloadMaps(setup.getStartLatitude(), setup.getStartLongitude(), setup.getEndLatitude(), setup.getEndLongitude());
 	}
 
 	private void addMap() {
 		map = new Map(cars);
-
+		
 		int mapStartX = map.getImage().getWidth() / 2;
 		int mapStartY = map.getImage().getHeight() / 2;
 		this.addObject(map, mapStartX, mapStartY);
@@ -142,6 +144,8 @@ public class TestWorld2 extends World {
 			c.getFront().setLocation(c.getFront().getExactX() + xChange, c.getFront().getExactY() + yChange);
 			c.getRear().setLocation(c.getRear().getExactX() + xChange, c.getRear().getExactY() + yChange);
 			c.setPosition();
+			
+//			addNode((int) c.getRear().getExactX(), (int) c.getRear().getExactY());
 		}
 	}
 
