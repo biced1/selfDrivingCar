@@ -89,33 +89,9 @@ public class Ray extends SmoothMover {
 	}
 
 	private boolean isOnRoad() {
-		int invalidRedValue = 224;
-		int redErrorThreshold = 0;
-		int invalidBlueValue = 235;
-		int blueErrorThreshold = 5;
-		int invalidGreenValue = 228;
-		int greenErrorThreshold = 5;
-
-		Color testColor = new Color(invalidRedValue, invalidGreenValue,
-				invalidBlueValue);
-		try {
-			testColor = ((TestWorld2) this.getWorld()).getColor(
+			Color testColor = ((TestWorld2) this.getWorld()).getColor(
 					this.getExactX(), this.getExactY());
-		} catch (IndexOutOfBoundsException e) {
-
-		}
-		return !(isWithinThreshold(testColor.getRed(), invalidRedValue,
-				redErrorThreshold)
-				&& isWithinThreshold(testColor.getBlue(), invalidBlueValue,
-						blueErrorThreshold) && isWithinThreshold(
-					testColor.getGreen(), invalidGreenValue,
-					greenErrorThreshold));
-	}
-
-	private boolean isWithinThreshold(int testValue, int prefferedValue,
-			int threshold) {
-		return prefferedValue - threshold <= testValue
-				&& testValue <= prefferedValue + threshold;
+		return ColorValidation.isRoadColor(testColor);
 	}
 
 	public int getOffset() {
