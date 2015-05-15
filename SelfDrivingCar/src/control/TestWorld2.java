@@ -8,14 +8,14 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Map;
+import model.Tile;
 import view.SetupInput;
 
 public class TestWorld2 extends World {
 	private double viewFrameX = 0;
 	private double viewFrameY = 0;
 
-	public static int worldWidth = 1900;
+	public static int worldWidth = 1800;
 	public static int worldHeight = 900;
 	private static int cellSize = 1;
 
@@ -23,10 +23,13 @@ public class TestWorld2 extends World {
 
 	private static int panSpeed = 10;
 
-	private Map map;
+	// private Map map;
 
 	private int currentCenter;
 	private List<Car> cars = new ArrayList<Car>();
+
+	private List<Tile> tiles = new ArrayList<Tile>();
+	private Tile middleTile;
 
 	private static int carInitialRotation = 0;
 
@@ -37,19 +40,21 @@ public class TestWorld2 extends World {
 	private static int threeQuarterCircle = 3 * quarterCircle;
 	private SetupInput setup = new SetupInput();
 	private MapIO mapDownloader = new MapIO();
+	private TileManager manager;
+
 	public TestWorld2() {
 		super(worldWidth, worldHeight, cellSize, false);
-		addMap();
 		setup.displayInputs();
-		mapDownloader.downloadMaps(setup.getStartLatitude(), setup.getStartLongitude(), setup.getEndLatitude(), setup.getEndLongitude());
+		List<Tile> allTiles = mapDownloader.getTiles(setup.getStartLatitude(), setup.getStartLongitude(), setup.getEndLatitude(), setup.getEndLongitude());
+		manager = new TileManager(allTiles);
+		this.setActOrder(Tile.class, Car.class, FrontTire.class, BackTire.class);
 	}
 
-	private void addMap() {
-		map = new Map(cars);
-		
-		int mapStartX = map.getImage().getWidth() / 2;
-		int mapStartY = map.getImage().getHeight() / 2;
-		this.addObject(map, mapStartX, mapStartY);
+	private void addTile(Tile t) {
+
+		double tileXPos = t.getXPos() * t.getImage().getWidth() + t.getImage().getWidth() / 2;
+		double tileYPos = t.getYPos() * t.getImage().getHeight() + t.getImage().getHeight() / 2;
+		this.addObject(t, (int) tileXPos, (int) tileYPos);
 	}
 
 	private void addCar(int x, int y, int rotation) {
@@ -72,7 +77,15 @@ public class TestWorld2 extends World {
 	}
 
 	public Color getColor(double xPos, double yPos) {
-		return map.getImage().getColorAt((int) (xPos - viewFrameX), (int) (yPos - viewFrameY));
+		int colorXPos = (int) (xPos - viewFrameX);
+		int colorYPos = (int) (yPos - viewFrameY);
+		if(colorXPos < 0){
+			colorXPos = 0;
+		}
+		if(colorYPos < 0){
+			colorYPos = 0;
+		}
+		return manager.getColorAt(colorXPos, colorYPos);
 	}
 
 	private void setNextAsCurrent() {
@@ -94,32 +107,51 @@ public class TestWorld2 extends World {
 	}
 
 	private void addCarAtCurrentMousePosition(int rotation) {
-		int invalidRedValue = 224;
-		int redErrorThreshold = 0;
-		int invalidBlueValue = 235;
-		int blueErrorThreshold = 5;
-		int invalidGreenValue = 228;
-		int greenErrorThreshold = 5;
-
 		MouseInfo mouse = Greenfoot.getMouseInfo();
 		if (mouse != null) {
 			Color testColor = getColor(mouse.getX(), mouse.getY());
-			if (!(isWithinThreshold(testColor.getRed(), invalidRedValue, redErrorThreshold)
-					&& isWithinThreshold(testColor.getBlue(), invalidBlueValue, blueErrorThreshold) && isWithinThreshold(testColor.getGreen(),
-						invalidGreenValue, greenErrorThreshold))) {
+			if (ColorValidation.isRoadColor(testColor)) {
 				addCar(mouse.getX(), mouse.getY(), rotation);
 			}
 		}
-	}
-
-	private boolean isWithinThreshold(int testValue, int prefferedValue, int threshold) {
-		return prefferedValue - threshold <= testValue && testValue <= prefferedValue + threshold;
 	}
 
 	@Override
 	public void act() {
 		respondToKeyEvent();
 		setActors();
+		setCenter();
+	}
+
+	private void setCenter() {
+		int xMiddle = worldWidth / 2;
+		int yMiddle = worldHeight / 2;
+
+		int tileCenterX = (int) (xMiddle - viewFrameX);
+		int tileCenterY = (int) (yMiddle - viewFrameY);
+
+		Tile testTile = manager.getTileAt(tileCenterX, tileCenterY);
+
+		if (testTile != null && !testTile.equals(middleTile)) {
+			removeCurrentTiles();
+			middleTile = testTile;
+			addNewTiles(tileCenterX, tileCenterY);
+		}
+	}
+
+	private void removeCurrentTiles() {
+		List<Tile> toRemove = manager.getCurrentTiles();
+		for (Tile t : toRemove) {
+			this.removeObject(t);
+		}
+		manager.clearCurrentTiles();
+	}
+
+	private void addNewTiles(int tileCenterX, int tileCenterY) {
+		tiles = manager.getTileSection(tileCenterX, tileCenterY);
+		for (Tile t : tiles) {
+			addTile(t);
+		}
 	}
 
 	private void setActors() {
@@ -135,17 +167,24 @@ public class TestWorld2 extends World {
 		}
 		viewFrameX += xChange;
 		viewFrameY += yChange;
+		setTiles(viewFrameX, viewFrameY);
+		setCars(xChange, yChange);
 
-		double mapX = map.getImage().getWidth() / 2 + viewFrameX;
-		double mapY = map.getImage().getHeight() / 2 + viewFrameY;
+	}
 
-		map.setLocation(mapX, mapY);
+	private void setTiles(double viewFrameX, double viewFrameY) {
+		for (Tile t : tiles) {
+			double tileXPos = t.getXPos() * t.getImage().getWidth() + viewFrameX + t.getImage().getWidth() / 2;
+			double tileYPos = t.getYPos() * t.getImage().getHeight() + viewFrameY + t.getImage().getHeight() / 2;
+			t.setLocation(tileXPos, tileYPos);
+		}
+	}
+
+	private void setCars(double xChange, double yChange) {
 		for (Car c : cars) {
 			c.getFront().setLocation(c.getFront().getExactX() + xChange, c.getFront().getExactY() + yChange);
 			c.getRear().setLocation(c.getRear().getExactX() + xChange, c.getRear().getExactY() + yChange);
 			c.setPosition();
-			
-//			addNode((int) c.getRear().getExactX(), (int) c.getRear().getExactY());
 		}
 	}
 

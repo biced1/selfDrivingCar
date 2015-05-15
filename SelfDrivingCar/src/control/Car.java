@@ -2,10 +2,9 @@ package control;
 
 import greenfootAdditions.SmoothMover;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-
-import model.Map;
 
 public class Car extends SmoothMover {
 	private BackTire rearTire = new BackTire();
@@ -25,7 +24,7 @@ public class Car extends SmoothMover {
 
 	private int leftRay = 270;
 	private int rightRay = 90;
-	private int rayThreshold = 15;
+	private int rayThreshold = 40;
 	private int frontRayRange = 30;
 
 	private static int roadWidth = 110;
@@ -34,6 +33,7 @@ public class Car extends SmoothMover {
 
 	private String blueCarPath = "images/regular/blueCar.png";
 	private String redCarPath = "images/regular/redCar.png";
+	private int scale = 1;
 
 	public Car(List<Ray> rays) {
 		super();
@@ -55,15 +55,11 @@ public class Car extends SmoothMover {
 	public void act() {
 		traceRays();
 		setPosition();
-		setColor();
 		drive();
-	}
 
-	private void setColor() {
-		if (this.isTouching(Map.class)) {
-			this.setBlue();
-		} else {
-			this.setRed();
+		List<Ray> rays = getRaysBetween(leftRay, leftRay + rayThreshold);
+		for (Ray r : rays) {
+			r.setColor(new Color(0, 0, 204));
 		}
 	}
 
@@ -80,13 +76,15 @@ public class Car extends SmoothMover {
 	}
 
 	private void handleIntersection() {
-		int frontMinimumDistance = 150;
+		int frontMinimumDistance = 125;
 
 		if (getMaxDistance(getFrontRays(frontRayRange)) < frontMinimumDistance) {
 			speed = minSpeed;
 			if (inIntersection(rightRay - rayThreshold, rightRay + rayThreshold)) {
+				System.out.println("right");
 				this.frontTire.turnRight(maxTurn);
 			} else if (inIntersection(leftRay - rayThreshold, leftRay + rayThreshold)) {
+				System.out.println("left");
 				this.frontTire.turnLeft(maxTurn);
 			}
 		} else {
@@ -117,7 +115,6 @@ public class Car extends SmoothMover {
 
 		double maxFrontDistance = getMaxDistance(getFrontRays(frontRayRange));
 		if (maxFrontDistance < frontMinimumDistance) {
-//			speed = (maxFrontDistance - 100) / 35;
 			speed = 0;
 			this.frontTire.brake();
 		} else {
@@ -288,6 +285,7 @@ public class Car extends SmoothMover {
 
 	private void setBlue() {
 		this.setImage(blueCarPath);
+		this.getImage().scale(this.getImage().getWidth() / scale, this.getImage().getHeight() / scale);
 	}
 
 	private void setRed() {

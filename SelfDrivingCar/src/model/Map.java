@@ -8,7 +8,7 @@ import java.util.List;
 import control.Car;
 
 public class Map extends SmoothMover {
-	private static int scale = 4;
+	private static int scale = 6;
 	private long distanceFromTop = 0;
 	private long distanceFromLeft = 0;
 	private String mapImagePath = "images/maps/coord=40.564416,-112.304306_zoom=-2.png";
