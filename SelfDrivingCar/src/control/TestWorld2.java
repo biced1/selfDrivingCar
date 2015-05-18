@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Coordinate;
 import model.Tile;
 import view.SetupInput;
 
@@ -22,8 +23,6 @@ public class TestWorld2 extends World {
 	private boolean isFocused = true;
 
 	private static int panSpeed = 10;
-
-	// private Map map;
 
 	private int currentCenter;
 	private List<Car> cars = new ArrayList<Car>();
@@ -40,13 +39,15 @@ public class TestWorld2 extends World {
 	private static int threeQuarterCircle = 3 * quarterCircle;
 	private SetupInput setup = new SetupInput();
 	private MapIO mapDownloader = new MapIO();
-	private TileManager manager;
+	private TileManager tileManager;
+	private DirectionsManager directionsManager;
 
 	public TestWorld2() {
 		super(worldWidth, worldHeight, cellSize, false);
 		setup.displayInputs();
 		List<Tile> allTiles = mapDownloader.getTiles(setup.getStartLatitude(), setup.getStartLongitude(), setup.getEndLatitude(), setup.getEndLongitude());
-		manager = new TileManager(allTiles);
+		tileManager = new TileManager(allTiles);
+		directionsManager = new DirectionsManager(tileManager);
 		this.setActOrder(Tile.class, Car.class, FrontTire.class, BackTire.class);
 	}
 
@@ -85,7 +86,7 @@ public class TestWorld2 extends World {
 		if(colorYPos < 0){
 			colorYPos = 0;
 		}
-		return manager.getColorAt(colorXPos, colorYPos);
+		return tileManager.getColorAt(colorXPos, colorYPos);
 	}
 
 	private void setNextAsCurrent() {
@@ -130,8 +131,7 @@ public class TestWorld2 extends World {
 		int tileCenterX = (int) (xMiddle - viewFrameX);
 		int tileCenterY = (int) (yMiddle - viewFrameY);
 
-		Tile testTile = manager.getTileAt(tileCenterX, tileCenterY);
-
+		Tile testTile = tileManager.getTileAt(tileCenterX, tileCenterY);
 		if (testTile != null && !testTile.equals(middleTile)) {
 			removeCurrentTiles();
 			middleTile = testTile;
@@ -140,15 +140,15 @@ public class TestWorld2 extends World {
 	}
 
 	private void removeCurrentTiles() {
-		List<Tile> toRemove = manager.getCurrentTiles();
+		List<Tile> toRemove = tileManager.getCurrentTiles();
 		for (Tile t : toRemove) {
 			this.removeObject(t);
 		}
-		manager.clearCurrentTiles();
+		tileManager.clearCurrentTiles();
 	}
 
 	private void addNewTiles(int tileCenterX, int tileCenterY) {
-		tiles = manager.getTileSection(tileCenterX, tileCenterY);
+		tiles = tileManager.getTileSection(tileCenterX, tileCenterY);
 		for (Tile t : tiles) {
 			addTile(t);
 		}
@@ -209,6 +209,13 @@ public class TestWorld2 extends World {
 		}
 		if ("i".equals(key) || "I".equals(key)) {
 			addCarAtCurrentMousePosition(threeQuarterCircle);
+		}
+		if ("c".equals(key) || "C".equals(key)) {
+			MouseInfo mouse = Greenfoot.getMouseInfo();
+			if (mouse != null) {
+				Coordinate c = directionsManager.getCoordinateAt(mouse.getX() - viewFrameX, mouse.getY() - viewFrameY);
+				System.out.println(c.getLatitude() + " " + c.getLongitude());
+			}
 		}
 		if (Greenfoot.isKeyDown("up")) {
 			isFocused = false;

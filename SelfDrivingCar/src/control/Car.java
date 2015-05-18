@@ -2,7 +2,6 @@ package control;
 
 import greenfootAdditions.SmoothMover;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class Car extends SmoothMover {
 
 	private int leftRay = 270;
 	private int rightRay = 90;
-	private int rayThreshold = 40;
+	private int rayThreshold = 30;
 	private int frontRayRange = 30;
 
 	private static int roadWidth = 110;
@@ -56,11 +55,6 @@ public class Car extends SmoothMover {
 		traceRays();
 		setPosition();
 		drive();
-
-		List<Ray> rays = getRaysBetween(leftRay, leftRay + rayThreshold);
-		for (Ray r : rays) {
-			r.setColor(new Color(0, 0, 204));
-		}
 	}
 
 	private void drive() {
@@ -81,10 +75,8 @@ public class Car extends SmoothMover {
 		if (getMaxDistance(getFrontRays(frontRayRange)) < frontMinimumDistance) {
 			speed = minSpeed;
 			if (inIntersection(rightRay - rayThreshold, rightRay + rayThreshold)) {
-				System.out.println("right");
 				this.frontTire.turnRight(maxTurn);
 			} else if (inIntersection(leftRay - rayThreshold, leftRay + rayThreshold)) {
-				System.out.println("left");
 				this.frontTire.turnLeft(maxTurn);
 			}
 		} else {
