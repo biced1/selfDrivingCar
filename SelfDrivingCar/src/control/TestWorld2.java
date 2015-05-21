@@ -10,14 +10,20 @@ import java.util.List;
 
 import model.Coordinate;
 import model.Tile;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import view.SetupInput;
 
 public class TestWorld2 extends World {
 	private double viewFrameX = 0;
 	private double viewFrameY = 0;
 
-	public static int worldWidth = 1800;
+	private static final int displayPanelWidth = 250;
+	public static int worldWidth = 900;
 	public static int worldHeight = 900;
+	private final int padding = 10;
 	private static int cellSize = 1;
 
 	private boolean isFocused = true;
@@ -32,8 +38,7 @@ public class TestWorld2 extends World {
 
 	private static int carInitialRotation = 0;
 
-	private static int carRadius = 22;
-
+	private static double globalScale = 1;
 	private static int quarterCircle = 90;
 	private static int halfCircle = 2 * quarterCircle;
 	private static int threeQuarterCircle = 3 * quarterCircle;
@@ -41,18 +46,22 @@ public class TestWorld2 extends World {
 	private MapIO mapDownloader = new MapIO();
 	private TileManager tileManager;
 	private DirectionsManager directionsManager;
+	private DisplayPanel displayPanel;
+
+	private boolean gettingFirstCoord = false;
+	private boolean gettingSecondCoord = false;
 
 	public TestWorld2() {
-		super(worldWidth, worldHeight, cellSize, false);
+		super(worldWidth + displayPanelWidth, worldHeight, cellSize, false);
 		setup.displayInputs();
 		List<Tile> allTiles = mapDownloader.getTiles(setup.getStartLatitude(), setup.getStartLongitude(), setup.getEndLatitude(), setup.getEndLongitude());
 		tileManager = new TileManager(allTiles);
 		directionsManager = new DirectionsManager(tileManager);
-		this.setActOrder(Tile.class, Car.class, FrontTire.class, BackTire.class);
+		this.setActOrder(Tile.class, Car.class, FrontTire.class, BackTire.class, DisplayPanel.class);
+		addDisplayPanel();
 	}
 
 	private void addTile(Tile t) {
-
 		double tileXPos = t.getXPos() * t.getImage().getWidth() + t.getImage().getWidth() / 2;
 		double tileYPos = t.getYPos() * t.getImage().getHeight() + t.getImage().getHeight() / 2;
 		this.addObject(t, (int) tileXPos, (int) tileYPos);
@@ -62,7 +71,7 @@ public class TestWorld2 extends World {
 		List<Ray> carRays = new ArrayList<Ray>();
 		int raysStartingDegree = 0;
 		int raysEndingDegree = 359;
-		int rayFrequency = 1;
+		int rayFrequency = 2;
 
 		for (int i = raysStartingDegree; i <= raysEndingDegree; i += rayFrequency) {
 			Ray ray = new Ray(x, y, i, i);
@@ -72,21 +81,38 @@ public class TestWorld2 extends World {
 		Car car = new Car(carRays);
 		car.setRotation(rotation);
 		this.addObject(car, x, y);
-		this.addObject(car.getFront(), (int) (x + carRadius * getXComponent(rotation)), (int) (y + carRadius * getYComponent(rotation)));
-		this.addObject(car.getRear(), (int) (x - carRadius * getXComponent(rotation)), (int) (y - carRadius * getYComponent(rotation)));
+		this.addObject(car.getFront(), (int) (x + car.getImage().getWidth() * getXComponent(rotation)), (int) (y + car.getImage().getWidth()
+				* getYComponent(rotation)));
+		this.addObject(car.getRear(), (int) (x - car.getImage().getWidth() * getXComponent(rotation)), (int) (y - car.getImage().getWidth()
+				* getYComponent(rotation)));
 		cars.add(car);
+		car.scaleCar(globalScale);
+	}
+
+	private void scaleWorld(double scale) {
+		globalScale = scale;
+		tileManager.scaleTiles(scale);
+		for (Car c : cars) {
+			c.scaleCar(scale);
+		}
+
 	}
 
 	public Color getColor(double xPos, double yPos) {
 		int colorXPos = (int) (xPos - viewFrameX);
 		int colorYPos = (int) (yPos - viewFrameY);
-		if(colorXPos < 0){
+		if (colorXPos < 0) {
 			colorXPos = 0;
 		}
-		if(colorYPos < 0){
+		if (colorYPos < 0) {
 			colorYPos = 0;
 		}
 		return tileManager.getColorAt(colorXPos, colorYPos);
+	}
+
+	private void addDisplayPanel() {
+		displayPanel = new DisplayPanel(displayPanelWidth, worldHeight);
+		this.addObject(displayPanel, /* worldWidth + */displayPanelWidth / 2 + padding, worldHeight / 2);
 	}
 
 	private void setNextAsCurrent() {
@@ -122,6 +148,15 @@ public class TestWorld2 extends World {
 		respondToKeyEvent();
 		setActors();
 		setCenter();
+		updateDisplayPanel();
+		updateCarLocations();
+	}
+
+	private void updateCarLocations() {
+		for (Car c : cars) {
+			c.setCurrentPosition(directionsManager.getCoordinateAt(c.getExactX() - viewFrameX, c.getExactY() - viewFrameY));
+		}
+
 	}
 
 	private void setCenter() {
@@ -155,6 +190,7 @@ public class TestWorld2 extends World {
 	}
 
 	private void setActors() {
+
 		int xMiddle = worldWidth / 2;
 		int yMiddle = worldHeight / 2;
 
@@ -170,6 +206,15 @@ public class TestWorld2 extends World {
 		setTiles(viewFrameX, viewFrameY);
 		setCars(xChange, yChange);
 
+	}
+
+	private void updateDisplayPanel() {
+		if (isFocused && !cars.isEmpty()) {
+			Car current = cars.get(currentCenter);
+			displayPanel.setSpeed(current.getFront().getSpeed());
+			displayPanel.setRotation(current.getRotation());
+			displayPanel.setCurrentLocation(directionsManager.getCoordinateAt(current.getX() - viewFrameX, current.getY() - viewFrameY));
+		}
 	}
 
 	private void setTiles(double viewFrameX, double viewFrameY) {
@@ -215,6 +260,46 @@ public class TestWorld2 extends World {
 			if (mouse != null) {
 				Coordinate c = directionsManager.getCoordinateAt(mouse.getX() - viewFrameX, mouse.getY() - viewFrameY);
 				System.out.println(c.getLatitude() + " " + c.getLongitude());
+			}
+		}
+		if ("1".equals(key)) {
+			MouseInfo mouse = Greenfoot.getMouseInfo();
+			if (mouse != null) {
+				displayPanel.setFirstCoordinate(directionsManager.getCoordinateAt(mouse.getX() - viewFrameX, mouse.getY() - viewFrameY));
+			}
+		}
+		if ("2".equals(key)) {
+			MouseInfo mouse = Greenfoot.getMouseInfo();
+			if (mouse != null) {
+				displayPanel.setSecondCoordinate(directionsManager.getCoordinateAt(mouse.getX() - viewFrameX, mouse.getY() - viewFrameY));
+			}
+		}
+		if ("enter".equals(key)) {
+			Coordinate firstCoordinate = displayPanel.getFirstCoordinate();
+			Coordinate secondCoordinate = displayPanel.getSecondCoordinate();
+			if (firstCoordinate.getLatitude() != 0 && firstCoordinate.getLongitude() != 0 && secondCoordinate.getLatitude() != 0
+					&& secondCoordinate.getLongitude() != 0) {
+				JSONObject directions = directionsManager.getDirections(firstCoordinate.getLongitude(), firstCoordinate.getLatitude(),
+						secondCoordinate.getLongitude(), secondCoordinate.getLatitude());
+				try {
+					System.out.println(directions.getJSONArray("routes").getJSONObject(0).getJSONArray("legs").getJSONObject(0).getJSONArray("steps"));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		}
+		for (Tile t : tiles) {
+			if (Greenfoot.mouseClicked(t)) {
+				MouseInfo mouse = Greenfoot.getMouseInfo();
+				if (mouse != null) {
+					if (gettingFirstCoord) {
+						Coordinate c = directionsManager.getCoordinateAt(mouse.getX() - viewFrameX, mouse.getY() - viewFrameY);
+					} else if (gettingSecondCoord) {
+						Coordinate c = directionsManager.getCoordinateAt(mouse.getX() - viewFrameX, mouse.getY() - viewFrameY);
+					}
+				}
 			}
 		}
 		if (Greenfoot.isKeyDown("up")) {

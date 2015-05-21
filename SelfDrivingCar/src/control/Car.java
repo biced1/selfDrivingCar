@@ -1,14 +1,27 @@
 package control;
 
+import greenfoot.GreenfootImage;
+import greenfootAdditions.GreenfootImageHelp;
 import greenfootAdditions.SmoothMover;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Coordinate;
+
 public class Car extends SmoothMover {
-	private BackTire rearTire = new BackTire();
-	private FrontTire frontTire = new FrontTire(rearTire);
+	private BackTire rearTire;
+	private FrontTire frontTire;
+
+	private int tirePositionAdjust;
+
 	private List<Ray> rays;
+	private List<Ray> frontRays;
+	private List<Ray> leftFrontRays;
+	private List<Ray> rightFrontRays;
+	
+	private Coordinate currentPosition;
+	
 	private final double maxSpeed = 3;
 	private double speed = maxSpeed;
 	private double minSpeed = 1;
@@ -23,7 +36,7 @@ public class Car extends SmoothMover {
 
 	private int leftRay = 270;
 	private int rightRay = 90;
-	private int rayThreshold = 30;
+	private int rayThreshold = 50;
 	private int frontRayRange = 30;
 
 	private static int roadWidth = 110;
@@ -32,14 +45,29 @@ public class Car extends SmoothMover {
 
 	private String blueCarPath = "images/regular/blueCar.png";
 	private String redCarPath = "images/regular/redCar.png";
-	private int scale = 1;
+	private final double baseScale = 1;
+	private double scale = 1;
 
 	public Car(List<Ray> rays) {
 		super();
-		rearTire.setFrontTire(frontTire);
 		this.rays = rays;
 		setRed();
 		setBlue();
+		tirePositionAdjust = this.getImage().getWidth() / 3;
+		rearTire = new BackTire(this.getImage().getWidth() - tirePositionAdjust);
+		frontTire = new FrontTire(rearTire);
+		rearTire.setFrontTire(frontTire);
+		leftFrontRays = getRaysBetween(leftRay, leftRay + rayThreshold);
+		rightFrontRays = getRaysBetween(rightRay - rayThreshold, rightRay);
+		frontRays = getFrontRays(frontRayRange);
+	}
+
+	public void scaleCar(double scaleModifier) {
+		this.scale = scaleModifier * baseScale;
+		setBlue();
+		tirePositionAdjust = this.getImage().getWidth() / 3;
+		BackTire.setCarLength(this.getImage().getWidth() - tirePositionAdjust);
+
 	}
 
 	public void setPosition() {
@@ -62,16 +90,15 @@ public class Car extends SmoothMover {
 			this.getFront().accelerate();
 		}
 
-		if (inIntersection(leftRay - rayThreshold, leftRay + rayThreshold) || inIntersection(rightRay - rayThreshold, rightRay + rayThreshold)) {
-			handleIntersection();
-		} else {
+//		if (inIntersection(leftRay - rayThreshold, leftRay + rayThreshold) || inIntersection(rightRay - rayThreshold, rightRay + rayThreshold)) {
+//			handleIntersection();
+//		} else {
 			followRoad();
-		}
+//		}
 	}
 
 	private void handleIntersection() {
-		int frontMinimumDistance = 125;
-
+		int frontMinimumDistance = 300;
 		if (getMaxDistance(getFrontRays(frontRayRange)) < frontMinimumDistance) {
 			speed = minSpeed;
 			if (inIntersection(rightRay - rayThreshold, rightRay + rayThreshold)) {
@@ -86,17 +113,16 @@ public class Car extends SmoothMover {
 
 	private void followRoad() {
 		int frontMinimumDistance = 125;
-		int frontRayRange = 30;
-		double laneOffset = 1.5;
+		double laneOffset = 1.8;
 		double crosstrackDegreeAdjust = 5;
 		int toPercent = 100;
 
-		double leftWallSlope = averageSlope(getRaysBetween(leftRay, leftRay + rayThreshold));
-		double rightWallSlope = averageSlope(getRaysBetween(rightRay - rayThreshold, rightRay));
+		double leftWallSlope = averageSlope(leftFrontRays);
+		double rightWallSlope = averageSlope(rightFrontRays);
 		double roadDegrees = slopeToDegrees((leftWallSlope + rightWallSlope) / 2);
 
-		double leftMinDistance = getMinDistance(leftRay - rayThreshold, leftRay + rayThreshold) / laneOffset;
-		double rightMinDistance = getMinDistance(rightRay - rayThreshold, rightRay + rayThreshold) * laneOffset;
+		double leftMinDistance = getMinDistance(leftRay, leftRay) / laneOffset;
+		double rightMinDistance = getMinDistance(rightRay, rightRay) * laneOffset;
 
 		int frontRotation = this.frontTire.getRotation();
 		roadDegrees = closestDegree(frontRotation, (int) roadDegrees, (int) getReflection(roadDegrees));
@@ -104,8 +130,8 @@ public class Car extends SmoothMover {
 		double crosstrackError = rightMinDistance - leftMinDistance;
 		double adjustDegrees = (crosstrackError / (roadWidth * crosstrackDegreeAdjust) * toPercent)
 				- ((previousCrosstrackError - crosstrackError) / (roadWidth * crosstrackDegreeAdjust) * toPercent);
-
-		double maxFrontDistance = getMaxDistance(getFrontRays(frontRayRange));
+		
+		double maxFrontDistance = getMaxDistance(frontRays);
 		if (maxFrontDistance < frontMinimumDistance) {
 			speed = 0;
 			this.frontTire.brake();
@@ -236,9 +262,12 @@ public class Car extends SmoothMover {
 		double totalY = 0;
 		double totalX = 0;
 
-		for (int x = 1; x < rays.size(); x++) {
-			totalY += rays.get(x).getExactY() - current.getExactY();
-			totalX += rays.get(x).getExactX() - current.getExactX();
+		for (int x = 1; x < rays.size(); x += 3) {
+			Ray checking = rays.get(x);
+			if (!checking.isDistanceReached() || !current.isDistanceReached()) {
+				totalY += checking.getExactY() - current.getExactY();
+				totalX += checking.getExactX() - current.getExactX();
+			}
 			current = rays.get(x);
 		}
 
@@ -276,8 +305,8 @@ public class Car extends SmoothMover {
 	}
 
 	private void setBlue() {
-		this.setImage(blueCarPath);
-		this.getImage().scale(this.getImage().getWidth() / scale, this.getImage().getHeight() / scale);
+		GreenfootImage image = new GreenfootImage(blueCarPath);
+		this.setImage(GreenfootImageHelp.scale(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale)));
 	}
 
 	private void setRed() {
@@ -290,5 +319,21 @@ public class Car extends SmoothMover {
 
 	public SmoothMover getRear() {
 		return rearTire;
+	}
+
+	public double getScale() {
+		return scale;
+	}
+
+	public void setScale(double scale) {
+		this.scale = scale;
+	}
+
+	public Coordinate getCurrentPosition() {
+		return currentPosition;
+	}
+
+	public void setCurrentPosition(Coordinate currentPosition) {
+		this.currentPosition = currentPosition;
 	}
 }

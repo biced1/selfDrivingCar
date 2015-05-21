@@ -7,7 +7,7 @@ import java.awt.Color;
 
 public abstract class Tire extends SmoothMover {
 	protected final double maxSpeed = 5;
-	private int tireSize = 10;
+	private int tireSize = 2;
 	private int redValue = 84;
 	private int greenValue = 84;
 	private int blueValue = 84;

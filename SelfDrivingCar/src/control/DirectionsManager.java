@@ -23,6 +23,8 @@ public class DirectionsManager {
 	public DirectionsManager(TileManager tileManager){
 		this.tileManager = tileManager;
 	}
+	
+	
 
 	public JSONObject getDirections(double startLongitude, double startLatitude, double endLongitude, double endLatitude) {
 		String connectionParameters = "origin=" + startLatitude + "," + startLongitude + "&destination=" + endLatitude + "," + endLongitude + "&key=" + apiKey;

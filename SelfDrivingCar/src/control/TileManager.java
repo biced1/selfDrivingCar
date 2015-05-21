@@ -19,6 +19,13 @@ public class TileManager {
 	public TileManager(List<Tile> tiles) {
 		this.allTiles = tiles;
 	}
+	
+	public void scaleTiles(double scaleModifier){
+		Tile.setScale(Tile.getBaseScale() * scaleModifier);
+		for(Tile t : allTiles){
+			t.scaleImage();
+		}
+	}
 
 	public Tile getTileAt(int xPos, int yPos) {
 		Tile first = allTiles.get(0);

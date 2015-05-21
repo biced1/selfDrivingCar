@@ -5,7 +5,8 @@ import greenfootAdditions.GreenfootImageHelp;
 import greenfootAdditions.SmoothMover;
 
 public class Tile extends SmoothMover {
-	private static int scale = 7;
+	private final static double baseScale = 7;
+	private static double scale = baseScale;
 	private String tileImagePath;
 	private long xPos;
 	private long yPos;
@@ -26,7 +27,24 @@ public class Tile extends SmoothMover {
 
 	private void setupImage() {
 		GreenfootImage tileImage = new GreenfootImage(tileImagePath);
-		this.setImage(GreenfootImageHelp.scale(tileImage, tileImage.getWidth() * scale, tileImage.getHeight() * scale));
+		this.setImage(GreenfootImageHelp.scale(tileImage, tileImage.getWidth() * (int)scale, tileImage.getHeight() * (int)scale));
+	}
+	
+	public void scaleImage(){
+		GreenfootImage tileImage = new GreenfootImage(tileImagePath);
+		this.setImage(GreenfootImageHelp.scale(tileImage, (int)(tileImage.getWidth() * scale), (int)(tileImage.getHeight() * scale)));
+	}
+
+	public static double getScale() {
+		return scale;
+	}
+
+	public static void setScale(double scale) {
+		Tile.scale = scale;
+	}
+
+	public static double getBaseScale() {
+		return baseScale;
 	}
 
 	public long getXPos() {

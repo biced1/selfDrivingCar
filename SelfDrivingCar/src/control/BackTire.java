@@ -7,17 +7,18 @@ import greenfootAdditions.Vector;
 import java.awt.Color;
 
 public class BackTire extends SmoothMover {
-	private static int carLength = 44;
+	private static int carLength;
 	private FrontTire frontTire;
-	private int tireSize = 10;
+	private int tireSize = 2;
 	private int gray = 88;
 	private int squared = 2;
 
-	public BackTire() {
+	public BackTire(int carLength) {
 		GreenfootImage tire = new GreenfootImage(tireSize, tireSize);
 		tire.setColor(new Color(gray, gray, gray));
 		tire.fill();
 		this.setImage(tire);
+		BackTire.carLength = carLength;
 	}
 
 	@Override
@@ -51,5 +52,13 @@ public class BackTire extends SmoothMover {
 	private double getDistanceBetweenTires() {
 		return Math.sqrt(Math.pow(frontTire.getExactY() - this.getExactY(), squared)
 				+ Math.pow(frontTire.getExactX() - this.getExactX(), squared));
+	}
+	
+	public static int getCarLength() {
+		return carLength;
+	}
+
+	public static void setCarLength(int carLength) {
+		BackTire.carLength = carLength;
 	}
 }

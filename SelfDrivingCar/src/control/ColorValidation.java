@@ -3,12 +3,12 @@ package control;
 import java.awt.Color;
 
 public class ColorValidation {
-	private static int invalidRedValue = 247;
-	private static int redErrorThreshold = 5;
-	private static int invalidBlueValue = 237;
-	private static int blueErrorThreshold = 5;
-	private static int invalidGreenValue = 244;
-	private static int greenErrorThreshold = 5;
+	private static int invalidRedValue = 185;
+	private static int redErrorThreshold = 20;
+	private static int invalidBlueValue = 185;
+	private static int blueErrorThreshold = 20;
+	private static int invalidGreenValue = 185;
+	private static int greenErrorThreshold = 20;
 	
 	public static boolean isRoadColor(Color testColor){
 		return (!(isWithinThreshold(testColor.getRed(), invalidRedValue, redErrorThreshold)
