@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Coordinate;
+import model.Directions;
+import model.Step;
+import model.StepCommand;
 
 public class Car extends SmoothMover {
 	private BackTire rearTire;
@@ -19,15 +22,18 @@ public class Car extends SmoothMover {
 	private List<Ray> frontRays;
 	private List<Ray> leftFrontRays;
 	private List<Ray> rightFrontRays;
-	
+
+	private Directions currentDirections;
+	private int currentStep = 0;
+
 	private Coordinate currentPosition;
-	
+
 	private final double maxSpeed = 3;
 	private double speed = maxSpeed;
 	private double minSpeed = 1;
 
 	private double maxTurn = 3;
-	private double gentleTurn = 2;
+	private double gentleTurn = 1;
 
 	private int halfCircle = 180;
 	private int circle = 360;
@@ -48,9 +54,12 @@ public class Car extends SmoothMover {
 	private final double baseScale = 1;
 	private double scale = 1;
 
-	public Car(List<Ray> rays) {
+	private final int feetPerMile = 5280;
+
+	public Car(List<Ray> rays, Directions directions) {
 		super();
 		this.rays = rays;
+		this.currentDirections = directions;
 		setRed();
 		setBlue();
 		tirePositionAdjust = this.getImage().getWidth() / 3;
@@ -60,6 +69,8 @@ public class Car extends SmoothMover {
 		leftFrontRays = getRaysBetween(leftRay, leftRay + rayThreshold);
 		rightFrontRays = getRaysBetween(rightRay - rayThreshold, rightRay);
 		frontRays = getFrontRays(frontRayRange);
+		
+		System.out.println(directions.getSteps());
 	}
 
 	public void scaleCar(double scaleModifier) {
@@ -83,18 +94,41 @@ public class Car extends SmoothMover {
 		traceRays();
 		setPosition();
 		drive();
+
 	}
 
 	private void drive() {
 		if (this.getFront().getSpeed() < speed) {
 			this.getFront().accelerate();
 		}
+		int nearIntersection = 14;
 
-//		if (inIntersection(leftRay - rayThreshold, leftRay + rayThreshold) || inIntersection(rightRay - rayThreshold, rightRay + rayThreshold)) {
-//			handleIntersection();
-//		} else {
-			followRoad();
-//		}
+		Step step = currentDirections.getSteps().get(currentStep);
+
+		Coordinate origin = step.getStart();
+		Coordinate destination = step.getEnd();
+		double feetAwayFromDestination = calculateDistance(currentPosition.getLatitude(), currentPosition.getLongitude(), destination.getLatitude(),
+				destination.getLongitude()) * feetPerMile;
+		double feetAwayFromOrigin = calculateDistance(currentPosition.getLatitude(), currentPosition.getLongitude(), origin.getLatitude(),
+				origin.getLongitude())
+				* feetPerMile;
+		if (feetAwayFromDestination < nearIntersection) {
+			currentStep++;
+			System.out.println("Step " + currentStep);
+		}
+		System.out.println("Destination " + feetAwayFromDestination);
+		System.out.println("Origin " + feetAwayFromOrigin);
+		if(feetAwayFromOrigin < nearIntersection){
+			if (step.getCommand() == StepCommand.RIGHT) {
+				System.out.println("turning right");
+				turnRight();
+			} else if(step.getCommand() == StepCommand.LEFT){
+				System.out.println("turning left");
+				turnLeft();
+			}
+		}
+		followRoad();
+
 	}
 
 	private void handleIntersection() {
@@ -109,6 +143,14 @@ public class Car extends SmoothMover {
 		} else {
 			turnTowards(this.getRotation());
 		}
+	}
+
+	private void turnRight() {
+		turnTowards(getActualRotation(this.getRotation() + quarterCircle));
+	}
+
+	private void turnLeft() {
+		turnTowards(getActualRotation(this.getRotation() - quarterCircle));
 	}
 
 	private void followRoad() {
@@ -130,15 +172,9 @@ public class Car extends SmoothMover {
 		double crosstrackError = rightMinDistance - leftMinDistance;
 		double adjustDegrees = (crosstrackError / (roadWidth * crosstrackDegreeAdjust) * toPercent)
 				- ((previousCrosstrackError - crosstrackError) / (roadWidth * crosstrackDegreeAdjust) * toPercent);
-		
-		double maxFrontDistance = getMaxDistance(frontRays);
-		if (maxFrontDistance < frontMinimumDistance) {
-			speed = 0;
-			this.frontTire.brake();
-		} else {
-			speed = maxSpeed;
-			turnTowards(getActualRotation((int) (roadDegrees + adjustDegrees)));
-		}
+
+		speed = maxSpeed;
+		turnTowards(getActualRotation((int) (roadDegrees + adjustDegrees)));
 
 		previousCrosstrackError = crosstrackError;
 	}
@@ -304,6 +340,24 @@ public class Car extends SmoothMover {
 		return actualRotation;
 	}
 
+	private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+		double theta = lon1 - lon2;
+		double dist = Math.sin(degreesToRadians(lat1)) * Math.sin(degreesToRadians(lat2)) + Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2))
+				* Math.cos(degreesToRadians(theta));
+		dist = Math.acos(dist);
+		dist = radiansToDegrees(dist);
+		dist = dist * 60 * 1.1515;
+		return (dist);
+	}
+
+	private double radiansToDegrees(double rad) {
+		return (rad * 180 / Math.PI);
+	}
+
+	private double degreesToRadians(double deg) {
+		return (deg * Math.PI / 180.0);
+	}
+
 	private void setBlue() {
 		GreenfootImage image = new GreenfootImage(blueCarPath);
 		this.setImage(GreenfootImageHelp.scale(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale)));
@@ -336,4 +390,13 @@ public class Car extends SmoothMover {
 	public void setCurrentPosition(Coordinate currentPosition) {
 		this.currentPosition = currentPosition;
 	}
+
+	public Directions getCurrentDirections() {
+		return currentDirections;
+	}
+
+	public void setCurrentDirections(Directions currentDirections) {
+		this.currentDirections = currentDirections;
+	}
+
 }

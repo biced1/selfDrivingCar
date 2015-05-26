@@ -9,9 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Coordinate;
+import model.Directions;
+import model.StepCommand;
 import model.Tile;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import view.SetupInput;
@@ -20,9 +21,9 @@ public class TestWorld2 extends World {
 	private double viewFrameX = 0;
 	private double viewFrameY = 0;
 
-	private static final int displayPanelWidth = 250;
-	public static int worldWidth = 900;
+	public static int worldWidth = 1100;
 	public static int worldHeight = 900;
+	private static final int displayPanelWidth = worldWidth;
 	private final int padding = 10;
 	private static int cellSize = 1;
 
@@ -36,8 +37,6 @@ public class TestWorld2 extends World {
 	private List<Tile> tiles = new ArrayList<Tile>();
 	private Tile middleTile;
 
-	private static int carInitialRotation = 0;
-
 	private static double globalScale = 1;
 	private static int quarterCircle = 90;
 	private static int halfCircle = 2 * quarterCircle;
@@ -47,12 +46,12 @@ public class TestWorld2 extends World {
 	private TileManager tileManager;
 	private DirectionsManager directionsManager;
 	private DisplayPanel displayPanel;
-
-	private boolean gettingFirstCoord = false;
-	private boolean gettingSecondCoord = false;
+	
+	private int currentInitialXPosition;
+	private int currentInitialYPosition;
 
 	public TestWorld2() {
-		super(worldWidth + displayPanelWidth, worldHeight, cellSize, false);
+		super(worldWidth, worldHeight, cellSize, false);
 		setup.displayInputs();
 		List<Tile> allTiles = mapDownloader.getTiles(setup.getStartLatitude(), setup.getStartLongitude(), setup.getEndLatitude(), setup.getEndLongitude());
 		tileManager = new TileManager(allTiles);
@@ -67,7 +66,11 @@ public class TestWorld2 extends World {
 		this.addObject(t, (int) tileXPos, (int) tileYPos);
 	}
 
-	private void addCar(int x, int y, int rotation) {
+	private void addCar(int x, int y, int rotation, Directions directions) {
+		System.out.println(x + " " + viewFrameX);
+		System.out.println(y + " " + viewFrameY);
+		x = x + (int)viewFrameX;
+		y = y + (int)viewFrameY;
 		List<Ray> carRays = new ArrayList<Ray>();
 		int raysStartingDegree = 0;
 		int raysEndingDegree = 359;
@@ -78,7 +81,7 @@ public class TestWorld2 extends World {
 			this.addObject(ray, x, y);
 			carRays.add(ray);
 		}
-		Car car = new Car(carRays);
+		Car car = new Car(carRays, directions);
 		car.setRotation(rotation);
 		this.addObject(car, x, y);
 		this.addObject(car.getFront(), (int) (x + car.getImage().getWidth() * getXComponent(rotation)), (int) (y + car.getImage().getWidth()
@@ -133,12 +136,12 @@ public class TestWorld2 extends World {
 		}
 	}
 
-	private void addCarAtCurrentMousePosition(int rotation) {
+	private void addCarAtCurrentMousePosition(int rotation, Directions directions) {
 		MouseInfo mouse = Greenfoot.getMouseInfo();
 		if (mouse != null) {
 			Color testColor = getColor(mouse.getX(), mouse.getY());
 			if (ColorValidation.isRoadColor(testColor)) {
-				addCar(mouse.getX(), mouse.getY(), rotation);
+				addCar(mouse.getX(), mouse.getY(), rotation, directions);
 			}
 		}
 	}
@@ -243,18 +246,18 @@ public class TestWorld2 extends World {
 			isFocused = true;
 			setNextAsCurrent();
 		}
-		if ("l".equals(key) || "L".equals(key)) {
-			addCarAtCurrentMousePosition(carInitialRotation);
-		}
-		if ("k".equals(key) || "K".equals(key)) {
-			addCarAtCurrentMousePosition(quarterCircle);
-		}
-		if ("j".equals(key) || "J".equals(key)) {
-			addCarAtCurrentMousePosition(halfCircle);
-		}
-		if ("i".equals(key) || "I".equals(key)) {
-			addCarAtCurrentMousePosition(threeQuarterCircle);
-		}
+		// if ("l".equals(key) || "L".equals(key)) {
+		// addCarAtCurrentMousePosition(carInitialRotation);
+		// }
+		// if ("k".equals(key) || "K".equals(key)) {
+		// addCarAtCurrentMousePosition(quarterCircle);
+		// }
+		// if ("j".equals(key) || "J".equals(key)) {
+		// addCarAtCurrentMousePosition(halfCircle);
+		// }
+		// if ("i".equals(key) || "I".equals(key)) {
+		// addCarAtCurrentMousePosition(threeQuarterCircle);
+		// }
 		if ("c".equals(key) || "C".equals(key)) {
 			MouseInfo mouse = Greenfoot.getMouseInfo();
 			if (mouse != null) {
@@ -265,6 +268,8 @@ public class TestWorld2 extends World {
 		if ("1".equals(key)) {
 			MouseInfo mouse = Greenfoot.getMouseInfo();
 			if (mouse != null) {
+				currentInitialXPosition = (int)(mouse.getX() - viewFrameX);
+				currentInitialYPosition = (int)(mouse.getY() - viewFrameY);
 				displayPanel.setFirstCoordinate(directionsManager.getCoordinateAt(mouse.getX() - viewFrameX, mouse.getY() - viewFrameY));
 			}
 		}
@@ -279,28 +284,21 @@ public class TestWorld2 extends World {
 			Coordinate secondCoordinate = displayPanel.getSecondCoordinate();
 			if (firstCoordinate.getLatitude() != 0 && firstCoordinate.getLongitude() != 0 && secondCoordinate.getLatitude() != 0
 					&& secondCoordinate.getLongitude() != 0) {
-				JSONObject directions = directionsManager.getDirections(firstCoordinate.getLongitude(), firstCoordinate.getLatitude(),
+				JSONObject jsonDirections = directionsManager.getDirections(firstCoordinate.getLongitude(), firstCoordinate.getLatitude(),
 						secondCoordinate.getLongitude(), secondCoordinate.getLatitude());
-				try {
-					System.out.println(directions.getJSONArray("routes").getJSONObject(0).getJSONArray("legs").getJSONObject(0).getJSONArray("steps"));
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				Directions directions = directionsManager.getDirections(jsonDirections);
+				int startRotation = 0;
+				StepCommand startCommand = directions.getSteps().get(0).getCommand();
+				if (startCommand == StepCommand.NORTH) {
+					startRotation = threeQuarterCircle;
+				} else if (startCommand == StepCommand.WEST) {
+					startRotation = halfCircle;
+				} else if (startCommand == StepCommand.SOUTH) {
+					startRotation = quarterCircle;
 				}
+				addCar(currentInitialXPosition, currentInitialYPosition, startRotation, directions);
 			}
 
-		}
-		for (Tile t : tiles) {
-			if (Greenfoot.mouseClicked(t)) {
-				MouseInfo mouse = Greenfoot.getMouseInfo();
-				if (mouse != null) {
-					if (gettingFirstCoord) {
-						Coordinate c = directionsManager.getCoordinateAt(mouse.getX() - viewFrameX, mouse.getY() - viewFrameY);
-					} else if (gettingSecondCoord) {
-						Coordinate c = directionsManager.getCoordinateAt(mouse.getX() - viewFrameX, mouse.getY() - viewFrameY);
-					}
-				}
-			}
 		}
 		if (Greenfoot.isKeyDown("up")) {
 			isFocused = false;

@@ -54,7 +54,7 @@ public class TileManager {
 		int desiredXPos = xPos / first.getImage().getWidth();
 		int desiredYPos = yPos / first.getImage().getHeight();
 
-		int viewRange = 1;
+		int viewRange = 0;
 
 		for (int x = -viewRange; x <= viewRange; x++) {
 			for (int y = -viewRange; y <= viewRange; y++) {
