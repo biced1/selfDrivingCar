@@ -6,5 +6,6 @@ public enum StepCommand {
 	NORTH,
 	SOUTH,
 	LEFT,
-	RIGHT
+	RIGHT,
+	STOP
 }

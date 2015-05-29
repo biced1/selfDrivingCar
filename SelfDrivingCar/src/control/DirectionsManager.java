@@ -25,6 +25,10 @@ public class DirectionsManager {
 	private String connectionString = "https://maps.googleapis.com/maps/api/directions/json?";
 	private String apiKey = "AIzaSyCwDvRNgv1xTSLz83PE1sJYF79MDjyF0BI";
 	private TileManager tileManager;
+	private int longFeetAdjust = 11;
+	private int latFeetAdjust = 5;
+
+	private final int feetPerMile = 5280;
 
 	public DirectionsManager(TileManager tileManager) {
 		this.tileManager = tileManager;
@@ -71,19 +75,19 @@ public class DirectionsManager {
 			}
 			StepCommand stepCommand = StepCommand.EAST;
 			if (step == 0) {
-				if(instructions.contains("<b>east</b>")){
+				if (instructions.contains("<b>east</b>")) {
 					stepCommand = StepCommand.EAST;
-				} else if(instructions.contains("<b>west</b>")){
+				} else if (instructions.contains("<b>west</b>")) {
 					stepCommand = StepCommand.WEST;
-				} else if(instructions.contains("<b>north</b>")){
+				} else if (instructions.contains("<b>north</b>")) {
 					stepCommand = StepCommand.NORTH;
-				} else if(instructions.contains("<b>south</b>")){
+				} else if (instructions.contains("<b>south</b>")) {
 					stepCommand = StepCommand.SOUTH;
 				}
 			} else {
-				if(instructions.contains("<b>right</b>")){
+				if (instructions.contains("<b>right</b>")) {
 					stepCommand = StepCommand.RIGHT;
-				} else if(instructions.contains("<b>left</b>")){
+				} else if (instructions.contains("<b>left</b>")) {
 					stepCommand = StepCommand.LEFT;
 				}
 			}
@@ -112,15 +116,45 @@ public class DirectionsManager {
 		double topLatitude = TileManager.getLatitudeAtTile(t.getYPos() + t.getyPosOffset());
 		double bottomLatitude = TileManager.getLatitudeAtTile(t.getYPos() + tilesAway + t.getyPosOffset());
 		double leftLongitude = TileManager.getLongitudeAtTile(t.getXPos() + t.getxPosOffset());
-		double rightLongitude = TileManager.getLongitudeAtTile(t.getXPos() + tilesAway + t.getxPosOffset());
-
+		double rightLongitude = TileManager.getLongitudeAtTile(t.getXPos() + tilesAway + t.getxPosOffset());		
+		
 		double tileXPos = exactX % t.getImage().getWidth();
 		double tileYPos = exactY % t.getImage().getHeight();
 
 		double exactLatitude = getValueBetween(topLatitude, bottomLatitude, tileYPos / t.getImage().getHeight());
 		double exactLongitude = getValueBetween(leftLongitude, rightLongitude, tileXPos / t.getImage().getWidth());
+		
+		double tileWidth = calculateDistance(topLatitude, leftLongitude, topLatitude, rightLongitude) * feetPerMile;
+		double tileHeight = calculateDistance(topLatitude, leftLongitude, bottomLatitude, leftLongitude) * feetPerMile;
+		double longAdjustPercent = longFeetAdjust / tileWidth;
+		double latAdjustPercent = latFeetAdjust / tileHeight;
+		
+		double longitudeAdjust = (rightLongitude - leftLongitude) * longAdjustPercent;
+		double latitudeAdjust = (bottomLatitude - topLatitude) * latAdjustPercent;
+		
+		exactLongitude += longitudeAdjust;
+		exactLatitude += latitudeAdjust;
+//		System.out.println(latAdjustPercent + " " + latitudeAdjust);
 
 		return new Coordinate(exactLatitude, exactLongitude);
+	}
+
+	private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+		double theta = lon1 - lon2;
+		double dist = Math.sin(degreesToRadians(lat1)) * Math.sin(degreesToRadians(lat2)) + Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2))
+				* Math.cos(degreesToRadians(theta));
+		dist = Math.acos(dist);
+		dist = radiansToDegrees(dist);
+		dist = dist * 60 * 1.1515;
+		return (dist);
+	}
+
+	private double radiansToDegrees(double rad) {
+		return (rad * 180 / Math.PI);
+	}
+
+	private double degreesToRadians(double deg) {
+		return (deg * Math.PI / 180.0);
 	}
 
 	private double getValueBetween(double first, double second, double percentage) {

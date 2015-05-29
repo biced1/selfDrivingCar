@@ -18,4 +18,8 @@ public class Directions {
 	public List<Step> getSteps() {
 		return steps;
 	}	
+	
+	public int size(){
+		return steps.size();
+	}
 }

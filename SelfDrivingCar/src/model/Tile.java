@@ -5,7 +5,7 @@ import greenfootAdditions.GreenfootImageHelp;
 import greenfootAdditions.SmoothMover;
 
 public class Tile extends SmoothMover {
-	private final static double baseScale = 1;
+	private final static double baseScale = 7;
 	private static double scale = baseScale;
 	private String tileImagePath;
 	private long xPos;

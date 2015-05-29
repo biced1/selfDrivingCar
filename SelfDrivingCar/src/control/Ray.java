@@ -9,8 +9,8 @@ public class Ray extends SmoothMover {
 	private double startX;
 	private double startY;
 
-	private double rayLength = 200;
-	private double minLength = 300;
+	private double rayLength = 100;
+	private double minLength = 100;
 
 	private double currentDistance = 0;
 	private double stepSize = 1;
@@ -70,7 +70,7 @@ public class Ray extends SmoothMover {
 	}
 
 	public void reset(double xPos, double yPos, int rotation, double speed) {
-		int lookaheadConstant = 50;
+		int lookaheadConstant = 1;
 
 		this.startX = xPos;
 		this.startY = yPos;

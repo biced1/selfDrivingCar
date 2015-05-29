@@ -11,10 +11,10 @@ public class SetupInput {
 	
 	private String error = "You entered an invalid number. Try again.";
 
-	private double startLatitude;
-	private double startLongitude;
-	private double endLatitude;
-	private double endLongitude;
+	private double startLatitude = 40.557493;
+	private double startLongitude = -112.312538;
+	private double endLatitude = 40.565432;
+	private double endLongitude = -112.301852;
 
 	Object[] message = { "Start Latitude:", startLatitudeField, "Start Longitude:", startLongitudeField, "End Latitude:", endLatitudeField, "End Longitude:",
 			endLongitudeField };

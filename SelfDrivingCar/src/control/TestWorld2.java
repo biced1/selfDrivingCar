@@ -52,7 +52,7 @@ public class TestWorld2 extends World {
 
 	public TestWorld2() {
 		super(worldWidth, worldHeight, cellSize, false);
-		setup.displayInputs();
+		//setup.displayInputs();
 		List<Tile> allTiles = mapDownloader.getTiles(setup.getStartLatitude(), setup.getStartLongitude(), setup.getEndLatitude(), setup.getEndLongitude());
 		tileManager = new TileManager(allTiles);
 		directionsManager = new DirectionsManager(tileManager);
