@@ -1,0 +1,33 @@
+---
+abstract: 'Calculate tile numbers for OpenStreetMap'
+author:
+  - 'Rolf Krahl <rotkraut@cpan.org>'
+build_requires:
+  ExtUtils::MakeMaker: 0
+configure_requires:
+  ExtUtils::MakeMaker: 0
+distribution_type: module
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 6.57_05'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Geo-OSM-Tiles
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  Cwd: 0
+  File::Basename: 0
+  File::Find: 0
+  File::Path: 0
+  File::Spec: 0
+  File::Temp: 0
+  Getopt::Long: 0
+  LWP: 0
+  Math::Trig: 0
+  Test::More: 0
+  YAML: 0
+version: 0.04
