@@ -17,7 +17,7 @@ public class FrontTire extends Tire {
 	private double accelerationVelocity = 1 + accelerationDelta;
 	private double decelerationVelocity = 1 - accelerationDelta;
 	private double brakeVelocity = .96;
-	private double frictionVelocity = .99;
+	private double frictionVelocity = .98;
 	
 	private static int halfCircle = 180;
 

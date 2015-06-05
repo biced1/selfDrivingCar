@@ -13,9 +13,10 @@ public class Ray extends SmoothMover {
 	private double minLength = 100;
 
 	private double currentDistance = 0;
-	private double stepSize = 1;
+	private double stepSize = 3;
 	private boolean foundCurb = false;
 	private boolean distanceReached = false;
+	private boolean foundCar = false;
 	private int offset;
 	private int size = 3;
 	private int middle = 0;
@@ -52,6 +53,7 @@ public class Ray extends SmoothMover {
 		if (!this.isOnRoad()) {
 			foundCurb = true;
 		}
+
 		if (currentDistance > rayLength) {
 			distanceReached = true;
 		}
@@ -115,5 +117,13 @@ public class Ray extends SmoothMover {
 
 	private double getYComponent(int degrees) {
 		return Math.sin(degrees * Math.PI / halfCircle);
+	}
+
+	public boolean isFoundCar() {
+		return foundCar;
+	}
+
+	public Car getFoundCar() {
+		return (Car) this.getOneIntersectingObject(Car.class);
 	}
 }

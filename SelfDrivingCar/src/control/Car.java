@@ -7,8 +7,6 @@ import greenfootAdditions.SmoothMover;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
-
 import model.Coordinate;
 import model.Directions;
 import model.Section;
@@ -58,12 +56,15 @@ public class Car extends SmoothMover {
 	private String redCarPath = "images/regular/redCar.png";
 	private final double baseScale = 1;
 	private double scale = 1;
-	
+
 	private double distanceFromDestination = 0;
+	private double distanceFromOrigin = 0;
 
 	private final int feetPerMile = 5280;
 
 	private double previousFeetFromOrigin;
+
+	private boolean intersectionClear = false;
 
 	public Car(List<Ray> rays, Directions directions) {
 		super();
@@ -78,8 +79,6 @@ public class Car extends SmoothMover {
 		leftFrontRays = getRaysBetween(leftRayOffset, leftRayOffset + rayThreshold);
 		rightFrontRays = getRaysBetween(rightRayOffset - rayThreshold, rightRayOffset);
 		frontRays = getFrontRays(frontRayRange);
-
-		// System.out.println(directions.getSteps());
 	}
 
 	public void scaleCar(double scaleModifier) {
@@ -149,56 +148,86 @@ public class Car extends SmoothMover {
 		if (this.getFront().getSpeed() < speed) {
 			this.getFront().accelerate();
 		}
-		int approachingIntersection = 20;
-		int leavingRightIntersection = 20;
-		int leavingLeftIntersection = 20;
+		int approachingIntersection = 30;
+		int leavingIntersection = 20;
 
 		Step step = currentDirections.getSteps().get(currentStep);
 
 		Coordinate origin = step.getStart();
 		Coordinate destination = step.getEnd();
-		double feetAwayFromDestination = calculateDistance(currentPosition.getLatitude(), currentPosition.getLongitude(), destination.getLatitude(),
-				destination.getLongitude()) * feetPerMile;
-		double feetAwayFromOrigin = calculateDistance(currentPosition.getLatitude(), currentPosition.getLongitude(), origin.getLatitude(),
-				origin.getLongitude())
+		distanceFromDestination = calculateDistance(currentPosition.getLatitude(), currentPosition.getLongitude(), destination.getLatitude(),
+				destination.getLongitude())
 				* feetPerMile;
-		if (feetAwayFromDestination < approachingIntersection) {
+		distanceFromOrigin = calculateDistance(currentPosition.getLatitude(), currentPosition.getLongitude(), origin.getLatitude(), origin.getLongitude())
+				* feetPerMile;
+		if (distanceFromDestination < approachingIntersection) {
 			if (currentStep < currentDirections.size() - 1) {
 				currentStep++;
 			} else {
 				speed = 0;
 			}
-			// System.out.println("Step " + currentStep);
-		}
-		// System.out.println("Destination " + feetAwayFromDestination);
-		// System.out.println("Origin " + feetAwayFromOrigin);
 
-		// System.out.println(destination);
-		this.setDistanceFromDestination(feetAwayFromDestination);
+		}
+		Section frontSection = getFrontSection();
+		int sectionMaxLength = 60;
+		this.setDistanceFromDestination(distanceFromDestination);
 		double offsetPercent = .66;
-		if (step.getCommand() == StepCommand.RIGHT && feetAwayFromOrigin < leavingRightIntersection && previousFeetFromOrigin - feetAwayFromOrigin > 0) {
-			Section s = getRightSection();
-			if (s != null) {
-				this.turnTireTowards(getActualRotation(s.getOffsetAt(offsetPercent) + this.getRotation()), maxTurn);
+		if (frontSection != null && frontSection.getLength() >= sectionMaxLength) {
+			if (this.frontTire.getSpeed() == 0) {
+				intersectionClear = true;
 			}
-		} else if (step.getCommand() == StepCommand.LEFT && feetAwayFromOrigin < leavingLeftIntersection) {
-			Section s = getLeftSection();
-			if (s != null) {
-				this.turnTireTowards(getActualRotation(s.getOffsetAt(offsetPercent) + this.getRotation()), maxTurn);
+			if (intersectionClear) {
+				speed = maxSpeed;
+			} else {
+				speed = 0;
+				frontTire.brake();
+			}
+			followRoad();
+		} else if (distanceFromOrigin < leavingIntersection) {
+
+			if (step.getCommand() == StepCommand.RIGHT) {
+				Section section = getRightSection();
+				if (section != null) {
+					this.turnTireTowards(getActualRotation(section.getOffsetAt(offsetPercent) + this.getRotation()), maxTurn);
+				}
+			} else if (step.getCommand() == StepCommand.LEFT) {
+				Section leftSection = getLeftSection();
+				if (leftSection != null) {
+					this.turnTireTowards(getActualRotation(leftSection.getOffsetAt(offsetPercent) + this.getRotation()), maxTurn);
+				}
 			}
 		} else {
+			if (speed > 0) {
+				speed = maxSpeed;
+			}
+			intersectionClear = false;
 			followRoad();
 		}
-		previousFeetFromOrigin = feetAwayFromOrigin;
+		previousFeetFromOrigin = distanceFromOrigin;
 
+	}
+
+	private Section getFrontSection() {
+		Section section = null;
+		for (Section s : sections) {
+			if (s.containsOffset(1)) {
+				section = s;
+			}
+		}
+		return section;
+	}
+
+	public double getDistanceFromOrigin() {
+		return distanceFromOrigin;
 	}
 
 	private Section getRightSection() {
 		Section rightSection = null;
 		boolean found = false;
+		int sectionMinLength = 10;
 		for (int offset = quarterCircle; offset > 0 && !found; offset--) {
 			for (Section s : sections) {
-				if (s.containsOffset(offset)) {
+				if (s.containsOffset(offset) && s.getLength() > sectionMinLength) {
 					rightSection = s;
 					found = true;
 				}
@@ -210,9 +239,10 @@ public class Car extends SmoothMover {
 	private Section getLeftSection() {
 		Section rightSection = null;
 		boolean found = false;
+		int sectionMinLength = 10;
 		for (int offset = threeQuarterCircle; offset < circle && !found; offset++) {
 			for (Section s : sections) {
-				if (s.containsOffset(offset)) {
+				if (s.containsOffset(offset) && s.getLength() > sectionMinLength) {
 					rightSection = s;
 					found = true;
 				}
@@ -240,6 +270,9 @@ public class Car extends SmoothMover {
 		double crosstrackDegreeAdjust = 5;
 		int toPercent = 100;
 		double rayHeightError = 10;
+
+		int leftDefaultDistance = 65;
+		int rightDefaultDistance = 20;
 		int leftMaxDistance = 70;
 		int rightMaxDistance = 40;
 
@@ -251,25 +284,29 @@ public class Car extends SmoothMover {
 		double leftWallSlope = averageSlope(leftRoadRays);
 		double rightWallSlope = averageSlope(rightRoadRays);
 		double roadDegrees;
-
-		if (leftRay.isDistanceReached() && rightRay.isDistanceReached()) {
+		int minNumberOfRays = 10;
+		double leftMinDistance = getMinDistance(leftRayOffset, leftRayOffset) / laneOffset;
+		double rightMinDistance = getMinDistance(rightRayOffset, rightRayOffset) * laneOffset;
+		if ((leftRay.getDistance() > leftMaxDistance || leftFrontRays.size() <= minNumberOfRays)
+				&& (rightRay.getDistance() > rightMaxDistance || rightFrontRays.size() <= minNumberOfRays)) {
 			roadDegrees = this.getRotation();
-		} else if (leftRay.getDistance() > leftMaxDistance) {
+			leftMinDistance = leftDefaultDistance / laneOffset;
+			rightMinDistance = rightDefaultDistance * laneOffset;
+		} else if (leftRay.getDistance() > leftMaxDistance || leftFrontRays.size() <= minNumberOfRays) {
 			roadDegrees = slopeToDegrees(rightWallSlope);
-		} else if (rightRay.getDistance() > rightMaxDistance) {
+			leftMinDistance = leftDefaultDistance / laneOffset;
+		} else if (rightRay.getDistance() > rightMaxDistance || rightFrontRays.size() <= minNumberOfRays) {
 			roadDegrees = slopeToDegrees(leftWallSlope);
+			rightMinDistance = rightDefaultDistance * laneOffset;
 		} else {
 			roadDegrees = slopeToDegrees((leftWallSlope + rightWallSlope) / 2);
 		}
 
-		double leftMinDistance = getMinDistance(leftRayOffset, leftRayOffset) / laneOffset;
-		double rightMinDistance = getMinDistance(rightRayOffset, rightRayOffset) * laneOffset;
-
 		if (leftMinDistance > leftMaxDistance / laneOffset) {
-			leftMinDistance = leftMaxDistance / laneOffset;
+			leftMinDistance = leftDefaultDistance / laneOffset;
 		}
 		if (rightMinDistance > rightMaxDistance * laneOffset) {
-			rightMinDistance = rightMaxDistance * laneOffset;
+			rightMinDistance = rightDefaultDistance * laneOffset;
 		}
 
 		int frontRotation = this.frontTire.getRotation();
@@ -278,9 +315,7 @@ public class Car extends SmoothMover {
 		double crosstrackError = rightMinDistance - leftMinDistance;
 		double adjustDegrees = (crosstrackError / (roadWidth * crosstrackDegreeAdjust) * toPercent)
 				- ((previousCrosstrackError - crosstrackError) / (roadWidth * crosstrackDegreeAdjust) * toPercent);
-
-		// speed = maxSpeed;
-		turnTireTowards(getActualRotation((int) (roadDegrees + adjustDegrees)), gentleTurn);
+		turnTireTowards(getActualRotation((int) (roadDegrees + adjustDegrees)), maxTurn);
 
 		previousCrosstrackError = crosstrackError;
 	}
@@ -382,7 +417,7 @@ public class Car extends SmoothMover {
 	private void traceRays() {
 		for (Ray r : rays) {
 			r.reset(this.getExactX(), this.getExactY(), this.getRotation(), this.getFront().getMovement().getLength());
-			while (!r.isDistanceReached() && !r.hitCurb()) {
+			while (!r.isDistanceReached() && !r.hitCurb() && (r.getFoundCar() == null || this.equals(r.getFoundCar()))) {
 				r.step();
 			}
 		}
@@ -477,17 +512,17 @@ public class Car extends SmoothMover {
 		dist = dist * 60 * 1.1515;
 		return (dist);
 	}
-	
-	public List<Ray> getRays(){
+
+	public List<Ray> getRays() {
 		return this.rays;
 	}
 
 	private double radiansToDegrees(double rad) {
-		return (rad * 180 / Math.PI);
+		return (rad * halfCircle / Math.PI);
 	}
 
 	private double degreesToRadians(double deg) {
-		return (deg * Math.PI / 180.0);
+		return (deg * Math.PI / halfCircle);
 	}
 
 	private void setBlue() {

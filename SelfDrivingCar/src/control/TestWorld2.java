@@ -72,7 +72,8 @@ public class TestWorld2 extends World {
 		List<Ray> carRays = new ArrayList<Ray>();
 		int raysStartingDegree = 0;
 		int raysEndingDegree = 359;
-		int rayFrequency = 2;
+		int rayFrequency = 3;
+		
 
 		for (int i = raysStartingDegree; i <= raysEndingDegree; i += rayFrequency) {
 			Ray ray = new Ray(x, y, i, i);
@@ -216,6 +217,7 @@ public class TestWorld2 extends World {
 			displayPanel.setRotation(current.getRotation());
 			displayPanel.setCurrentLocation(directionsManager.getCoordinateAt(current.getX() - viewFrameX, current.getY() - viewFrameY));
 			displayPanel.setDestinationDistance(current.getDistanceFromDestination());
+			displayPanel.setOriginDistance(current.getDistanceFromOrigin());
 		}
 	}
 

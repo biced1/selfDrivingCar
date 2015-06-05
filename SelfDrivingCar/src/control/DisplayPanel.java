@@ -26,6 +26,7 @@ public class DisplayPanel extends Actor {
 	private int secondCoordinateLatIndex;
 	private int secondCoordinateLongIndex;
 	private int destinationDistanceIndex;
+	private int originDistanceIndex;
 
 	private Coordinate firstCoordinate = new Coordinate(0, 0);
 	private Coordinate secondCoordinate = new Coordinate(0, 0);
@@ -33,6 +34,7 @@ public class DisplayPanel extends Actor {
 	private int rotation = 0;
 	private Coordinate currentLocation = new Coordinate(0, 0);
 	private double destinationDistance = 0;
+	private double originDistance = 0;
 
 	private List<String> moreLines = new ArrayList<String>();
 
@@ -68,8 +70,16 @@ public class DisplayPanel extends Actor {
 		drawFirstCoordinate();
 		drawSecondCoordinate();
 		drawDestinationDistance();
+		drawOriginDistance();
 		drawLine();
 
+	}
+
+	private void drawOriginDistance() {
+		originDistanceIndex = displayIndex;
+		displayIndex++;
+		displayPanelImage.drawString("Distance From Origin: ", 0, TEXTHEIGHT * originDistanceIndex);
+		
 	}
 
 	private void updatePanel() {
@@ -79,7 +89,12 @@ public class DisplayPanel extends Actor {
 		updateRotation(rotation);
 		updateLocation(currentLocation);
 		updateDestinationDistance(destinationDistance);
+		updateOriginDistance(originDistance);
 		drawMoreLines();
+	}
+
+	private void updateOriginDistance(double originDistance) {
+		displayPanelImage.drawString("Distance From Origin: " + originDistance, 0, TEXTHEIGHT * originDistanceIndex);		
 	}
 
 	private void updateDestinationDistance(double destinationDistance) {
@@ -218,6 +233,14 @@ public class DisplayPanel extends Actor {
 
 	public int getWidth() {
 		return this.width;
+	}
+
+	public double getOriginDistance() {
+		return originDistance;
+	}
+
+	public void setOriginDistance(double originDistance) {
+		this.originDistance = originDistance;
 	}
 
 }
