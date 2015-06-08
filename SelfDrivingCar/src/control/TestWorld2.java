@@ -21,7 +21,7 @@ public class TestWorld2 extends World {
 	private double viewFrameX = 0;
 	private double viewFrameY = 0;
 
-	public static int worldWidth = 1800;
+	public static int worldWidth = 900;
 	public static int worldHeight = 900;
 	private static final int displayPanelWidth = worldWidth;
 	private final int padding = 10;

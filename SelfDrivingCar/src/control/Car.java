@@ -145,7 +145,10 @@ public class Car extends SmoothMover {
 	}
 
 	private void drive() {
-		if (this.getFront().getSpeed() < speed) {
+		Ray frontRay = getRaysBetween(0, 0).get(0);
+		if (frontRay.getFoundCar() != null && !this.equals(frontRay.getFoundCar())) {
+			this.frontTire.brake();
+		} else if (this.getFront().getSpeed() < speed) {
 			this.getFront().accelerate();
 		}
 		int approachingIntersection = 30;
@@ -463,7 +466,7 @@ public class Car extends SmoothMover {
 
 		for (int x = 1; x < rays.size(); x += 3) {
 			Ray checking = rays.get(x);
-			if (!checking.isDistanceReached() || !current.isDistanceReached()) {
+			if ((!checking.isDistanceReached() || !current.isDistanceReached()) || (!checking.isFoundCar() || !current.isFoundCar())) {
 				totalY += checking.getExactY() - current.getExactY();
 				totalX += checking.getExactX() - current.getExactX();
 			}
